@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ordens de Compras</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .ordem-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .ordem-item {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 250px;
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 10px;
+            text-align: center;
+            color: #fff; /* Texto branco para melhor contraste com as cores de fundo */
+        }
+        .ordem-item h2 {
+            font-size: 18px;
+            margin: 0;
+        }
+        .ordem-item p {
+            font-size: 14px;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Ordens de Compras</h1>
+    <div class="ordem-grid">
+        <!-- Os itens das ordens serão gerados pelo JavaScript -->
+    </div>
+</div>
+
+<script>
+    // Array de cores
+    const colors = ['#28a745', '#ffc107', '#dc3545']; // Verde, Amarelo, Vermelho
+
+    // Função para gerar uma cor aleatória
+    function getRandomColor() {
+        return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    // Função para buscar ordens de compra da API
+    async function fetchOrders() {
+        try {
+            const response = await fetch('/ordensdecompras'); // Caminho para a API
+            if (!response.ok) {
+                throw new Error('Erro ao buscar ordens');
+            }
+            const ordem = await response.json();
+            displayOrdem(ordem);
+        } catch (error) {
+            console.error('Erro:', error);
+        }
+    }
+
+    // Função para exibir as ordens na página
+    function displayOrders(ordem) {
+        const ordemGrid = document.querySelector('.ordem-grid');
+        ordemGrid.innerHTML = ''; // Limpa o contêiner antes de adicionar novos itens
+
+        ordem.forEach(ordem => {
+            const ordemItem = document.createElement('div');
+            ordemItem.className = 'order-item';
+            ordemItem.style.backgroundColor = getRandomColor(); // Define a cor de fundo aleatória
+            ordemItem.innerHTML = `
+                <h2>Ordem ${ordem.numeroOrdem}</h2>
+                <p>Data: ${new Date(ordem.dataOrdem).toLocaleDateString('pt-BR')}</p>
+                <p>Valor: R$ ${ordem.valorOrdem.toFixed(2)}</p>
+            `;
+            ordersGrid.appendChild(ordemItem);
+        });
+    }
+
+    fetchOrdem();
+</script>
+</body>
+</html>
