@@ -12,11 +12,20 @@ public class Ordem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String numeroOrdem;
     private LocalDate dataOrdem;
     private BigDecimal valorOrdem;
+    private String status;
 
-    // Getters e Setters
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    private String observacao;
+
     public Long getId() {
         return id;
     }
@@ -25,27 +34,26 @@ public class Ordem {
         this.id = id;
     }
 
-    public String getNumber() {
-        return numeroOrdem;
-    }
-
-    public void setNumber(String numeroOrdem) {
-        this.numeroOrdem = numeroOrdem;
-    }
-
-    public LocalDate getDate() {
+    public LocalDate getDataOrdem() {
         return dataOrdem;
     }
 
-    public void setDate(LocalDate dataOrdem) {
+    public void setDataOrdem(LocalDate dataOrdem) {
         this.dataOrdem = dataOrdem;
     }
 
-    public BigDecimal getValue() {
+    public BigDecimal getValorOrdem() {
         return valorOrdem;
     }
 
-    public void setValue(BigDecimal valorOrdem) {
+    public void setValorOrdem(BigDecimal valorOrdem) {
         this.valorOrdem = valorOrdem;
+    }
+    public String getObservacao() {
+        return observacao;
+    }
+
+    public void setObservacao(String observacao) {
+        this.observacao = observacao;
     }
 }
