@@ -1,0 +1,236 @@
+const ordens = [];
+
+const deletedOrdens = [];
+let currentEditingOrder = null;
+let currentFileOrder = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+    const fetchOrders = async () => {
+        try {
+            const response = await fetch('/ordensdecompras'); // Chama o endpoint JSON
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const orders = await response.json();
+            const ordersDiv = document.getElementById('orders');
+            ordersDiv.innerHTML = orders.map(order => {
+                let statusClass = '';
+                switch (order.status) {
+                    case 'Pendente':
+                        statusClass = 'status-pendente';
+                        break;
+                    case 'Aprovada':
+                        statusClass = 'status-aprovada';
+                        break;
+                    case 'Reprovada':
+                        statusClass = 'status-reprovada';
+                        break;
+                    case 'Deletada':
+                        statusClass = 'status-deletada';
+                        break;
+                    default:
+                        statusClass = '';
+                }
+                return `
+                            <div class="order-item ${statusClass}">
+                                <p><strong>Número da Ordem:</strong> ${order.id}</p>
+                                <p><strong>Data da Ordem:</strong> ${order.dataOrdem}</p>
+                                <p><strong>Valor da Ordem:</strong> ${order.valorOrdem}</p>
+                                <p><strong>Status:</strong> ${order.status}</p>
+                                <p><strong>Observação:</strong>${order.observacao}</p>
+                            </div>
+                        `;
+            }).join('');
+        } catch (error) {
+            console.error('Erro ao buscar ordens:', error);
+            document.getElementById('orders').innerHTML = '<p>Erro ao carregar ordens.</p>';
+        }
+    };
+    function displayOrdem(ordens, section) {
+        const ordemGrid = document.getElementById(section);
+        ordemGrid.innerHTML = '';
+
+        ordens.forEach(ordem => {
+            const ordemItem = document.createElement('div');
+            ordemItem.className = 'ordem-item';
+            ordemItem.style.backgroundColor = getStatusColor(ordem.status);
+            ordemItem.innerHTML = `
+        <div class="buttons">
+            ${section === 'orders' ? `<button class="btn-edit" onclick="editOrdem(${ordem.id})"><img src="../templates/editar.png" alt="Editar"></button>` : ''}
+            ${ordem.file ? `<button class="btn-invoice" onclick="viewInvoice('${ordem.file}')"><img src="../templates/notafiscal.png" alt="Nota Fiscal"></button>` : ''}
+            ${section === 'orders' ? `<button class="btn-approve" onclick="approveOrdem(${ordem.id})"><img src="../templates/aprovado.png" alt="Aprovar"></button>` : ''}
+            ${section === 'orders' ? `<button class="btn-reject" onclick="rejectOrdem(${ordem.id})"><img src="../templates/reprovado.png" alt="Rejeitar"></button>` : ''}
+            ${section === 'orders' ? `<button class="btn-delete" onclick="deleteOrdem(${ordem.id})"><img src="../templates/lixeira.png" alt="Excluir"></button>` : ''}
+        </div>
+    `;
+            ordemGrid.appendChild(ordemItem);
+        });
+    }
+    fetchOrders();
+});
+
+function editOrdem(id) {
+    currentEditingOrder = ordens.find(ordem => ordem.id === id);
+    if (currentEditingOrder) {
+        document.getElementById('editId').value = currentEditingOrder.id;
+        document.getElementById('editValue').value = currentEditingOrder.value;
+        document.getElementById('editNumber').value = currentEditingOrder.number;
+        document.getElementById('editDate').value = currentEditingOrder.date;
+        document.getElementById('editObservacao').value = currentEditingOrder.observacao;
+        document.getElementById('editModal').style.display = 'flex';
+    }
+}
+
+function closeModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
+
+function saveEdit() {
+    const id = document.getElementById('editId').value;
+    const value = parseFloat(document.getElementById('editValue').value);
+    const number = document.getElementById('editNumber').value;
+    const date = document.getElementById('editDate').value;
+    const observacao = document.getElementById('editObservacao').value;
+
+    if (currentEditingOrder) {
+        currentEditingOrder.value = value;
+        currentEditingOrder.number = number;
+        currentEditingOrder.date = date;
+        currentEditingOrder.observacao = observacao;
+
+        // Atualizar a exibição
+        displayOrdem(ordens, 'orders');
+
+        // Fechar o modal
+        closeModal();
+    }
+}
+
+function openCreateModal() {
+    document.getElementById('createModal').style.display = 'flex';
+}
+
+function closeCreateModal() {
+    document.getElementById('createModal').style.display = 'none';
+}
+
+function createOrdem() {
+    const value = parseFloat(document.getElementById('createValue').value);
+    const number = document.getElementById('createNumber').value;
+    const date = document.getElementById('createDate').value;
+    const id = ordens.length ? Math.max(...ordens.map(o => o.id)) + 1 : 1;
+    const observacao = document.getElementById('criarObservacao').value;
+
+    const newOrdem = { id, value, number, date, status: 'Pendente', observacao, file: '' };
+    ordens.push(newOrdem);
+
+    // Atualizar a exibição
+    displayOrdem(ordens, 'orders');
+
+    // Fechar o modal
+    closeCreateModal();
+}
+
+function viewInvoice(file) {
+    window.open(file, '_blank');
+}
+
+function deleteOrdem(id) {
+    if (confirm(`Você tem certeza que deseja excluir a ordem ${id}?`)) {
+        const ordemIndex = ordens.findIndex(ordem => ordem.id === id);
+        if (ordemIndex !== -1) {
+            ordens[ordemIndex].status = 'Deletado';
+            deletedOrdens.push(ordens[ordemIndex]);
+            ordens.splice(ordemIndex, 1);
+            displayOrdem(ordens, 'orders');
+            displayOrdem(deletedOrdens, 'deleted');
+
+            alert(`Ordem ${id} excluída`);
+        }
+    }
+}
+
+function approveOrdem(id) {
+    const ordem = ordens.find(ordem => ordem.id === id);
+    if (ordem) {
+        ordem.status = 'Aprovado';
+        currentFileOrder = ordem;
+        document.getElementById('fileId').value = ordem.id;
+        document.getElementById('fileModal').style.display = 'flex';
+        displayOrdem(ordens, 'orders');
+    }
+}
+
+function rejectOrdem(id) {
+    const ordem = ordens.find(ordem => ordem.id === id);
+    if (ordem) {
+        ordem.status = 'Reprovado';
+        displayOrdem(ordens, 'orders');
+    }
+}
+
+function openNav() {
+    var sidebar = document.getElementById("mySidebar");
+    sidebar.classList.toggle("open");
+}
+function logout() {
+    window.location.href = "http://localhost:8080/login";
+}
+
+function toggleForm() {
+    var formContainer = document.getElementById("formContainer");
+    if (formContainer.style.display === "none" || formContainer.style.display === "") {
+        formContainer.style.display = "block";
+        document.querySelector(".toggle-btn").textContent = "Ocultar";
+    } else {
+        formContainer.style.display = "none";
+        document.querySelector(".toggle-btn").textContent = "Filtros";
+    }
+}
+function showSection(section) {
+    document.getElementById('orders').style.display = section === 'orders' ? 'flex' : 'none';
+    document.getElementById('deleted').style.display = section === 'deleted' ? 'flex' : 'none';
+}
+function openFileModal(ordem) {
+    currentFileOrder = ordem;
+    document.getElementById('fileOrderId').value = ordem.id;
+    document.getElementById('fileModal').style.display = 'flex';
+}
+
+function closeFileModal() {
+    document.getElementById('fileModal').style.display = 'none';
+}
+
+function uploadFile() {
+    const fileInput = document.getElementById('fileUpload');
+    if (currentFileOrder) {
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            const fileUrl = URL.createObjectURL(file); // Simula o upload do arquivo
+            currentFileOrder.file = fileUrl;
+            currentFileOrder.status = 'Aprovado'; // Define o status como aprovado
+        } else {
+            // Se nenhum arquivo foi anexado, muda o status para 'pending'
+            currentFileOrder.status = 'Pendente';
+            currentFileOrder.file = '';
+        }
+        closeFileModal();
+        displayOrdem(ordens, 'orders');
+    }
+}
+let currentOrderId = null;
+
+function showPermissions() {
+    currentOrderId = prompt("Digite o ID da ordem para gerenciar permissões:");
+    if (currentOrderId) {
+        document.getElementById('permissionsModal').style.display = 'flex';
+    }
+}
+
+function closePermissionsModal() {
+    document.getElementById('permissionsModal').style.display = 'none';
+}
+
+// Exibir ordens de compra ao carregar a página
+displayOrdem(ordens, 'orders');
+displayOrdem(deletedOrdens, 'Deletado');
