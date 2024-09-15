@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ordens de Compras</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div class="header">
+    <div class="logo">
+        <img src="logo.png" alt="Logo da Empresa">
+    </div>
+    <div class="nomeFilial">
+
+    </div>
+    <div class="nomeUsuario">
+
+    </div>
+</div>
+<!-- Menu Lateral -->
+<div id="mySidebar" class="sidebar">
+    <a href="javascript:void(0)" onclick="showSection('orders')">Ordens de Compras</a>
+    <a href="javascript:void(0)" onclick="showSection('deleted')">Ordens de Compras Excluídas</a>
+    <a href="javascript:void(0)" onclick="showPermissions()">Permissões</a>
+    <a href="javascript:void(0)" onclick="logout()">Sair</a>
+</div>
+
+<button class="openbtn" onclick="openNav()">☰ Menu</button>
+
+<div id="formContainer" class="form-container">
+    <div class="form-group">
+        <label for="startDate">Data Início:</label>
+        <input type="date" id="startDate" name="startDate">
+    </div>
+    <div class="form-group">
+        <label for="endDate">Data Final:</label>
+        <input type="date" id="endDate" name="endDate">
+    </div>
+    <div class="form-group">
+        <label for="user">Usuário:</label>
+        <input type="text" id="user" name="user">
+    </div>
+    <div class="form-group">
+        <label for="numeroOrdem">Numero da Ordem:</label>
+        <input type="text" id="numeroOrdem" name="numeroOrdem">
+    </div>
+    <div>
+    <form id="filterForm">
+        <label for="status">Status:</label>
+        <select id="status" name="status">
+            <option value="">Todos</option>
+            <option value="pendente">Pendente</option>
+            <option value="reprovado">Reprovado</option>
+            <option value="aprovado">Aprovado</option>
+            <option value="finalizado">Finalizado</option>
+        </select>
+        </form>
+    </div>
+</div>
+
+<button class="toggle-btn" onclick="toggleForm()">Filtros</button>
+
+<button class="btn-create" onclick="openCreateModal()">+</button>
+
+<div class="container">
+    <h1>Ordens de Compras</h1>
+    <div id="orders" class="ordem-grid">
+    </div>
+    <div id="deleted" class="ordem-grid" style="display: none;">
+    </div>
+</div>
+
+<!-- Modal de Edição -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <h2>Editar Ordem</h2>
+        <form id="editForm">
+            <input type="hidden" id="editId">
+
+            <label for="editValue">Valor:</label>
+            <input type="number" id="editValue" step="0.01">
+
+            <label for="editDate">Data:</label>
+            <input type="date" id="editDate">
+
+            <label for="editDate">Observação:</label>
+            <input type="text" id="editObservacao">
+
+            <button type="button" onclick="saveEdit()">Salvar</button>
+            <button type="button" class="cancel" onclick="closeModal()">Cancelar</button>
+        </form>
+    </div>
+</div>
+
+<!-- Modal de Criação -->
+<div id="createModal" class="modal">
+    <div class="modal-content">
+        <h2>Nova Ordem</h2>
+        <form id="createForm">
+            <label for="createValue">Valor:</label>
+            <input type="number" id="createValue" step="0.01">
+
+            <label for="createDate">Data:</label>
+            <input type="date" id="createDate">
+
+            <label for="editDate">Observação:</label>
+            <input type="text" id="criarObservacao">
+
+            <button type="button" onclick="createOrdem()">Criar</button>
+            <button type="button" class="cancel" onclick="closeCreateModal()">Cancelar</button>
+        </form>
+    </div>
+</div>
+<!-- Modal para anexar arquivo -->
+<div id="fileModal" class="modal-file">
+    <div class="modal-file-content">
+        <h2>Anexar Nota Fiscal</h2>
+        <form id="fileForm">
+            <input type="hidden" id="fileId">
+            <label for="fileUpload">Escolha o arquivo:</label>
+            <input type="file" id="fileUpload" required>
+            <button type="button" onclick="uploadFile()">Anexar</button>
+            <button type="button" class="cancel" onclick="closeFileModal()">Cancelar</button>
+        </form>
+    </div>
+</div>
+<div id="permissionsModal" class="modal">
+    <div class="modal-content">
+        <h2>Permissões</h2>
+        <p>Escolha a ação para a ordem selecionada:</p>
+        <button type="button" onclick="editOrder()">Editar</button>
+        <button type="button" onclick="deleteOrder()">Excluir</button>
+        <button type="button" onclick="openOrder()">Abrir</button>
+        <button type="button" class="cancel" onclick="closePermissionsModal()">Cancelar</button>
+    </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
