@@ -28,6 +28,17 @@
 
 <button class="openbtn" onclick="openNav()">☰ Menu</button>
 
+<button class="toggle-btn" onclick="toggleForm()">Filtros</button>
+
+<button class="btn-create" onclick="openCreateModal()">+</button>
+
+<div class="container">
+    <h1>Ordens de Compras</h1>
+    <div id="orders" class="ordem-grid">
+    </div>
+    <div id="deleted" class="ordem-grid" style="display: none;">
+    </div>
+</div>
 <div id="formContainer" class="form-container">
     <div class="form-group">
         <label for="startDate">Data Início:</label>
@@ -46,31 +57,18 @@
         <input type="text" id="numeroOrdem" name="numeroOrdem">
     </div>
     <div>
-    <form id="filterForm">
-        <label for="status">Status:</label>
-        <select id="status" name="status">
-            <option value="">Todos</option>
-            <option value="pendente">Pendente</option>
-            <option value="reprovado">Reprovado</option>
-            <option value="aprovado">Aprovado</option>
-            <option value="finalizado">Finalizado</option>
-        </select>
+        <form id="filterForm">
+            <label for="status">Status:</label>
+            <select id="status" name="status">
+                <option value="">Todos</option>
+                <option value="pendente">Pendente</option>
+                <option value="reprovado">Reprovado</option>
+                <option value="aprovado">Aprovado</option>
+                <option value="finalizado">Finalizado</option>
+            </select>
         </form>
     </div>
 </div>
-
-<button class="toggle-btn" onclick="toggleForm()">Filtros</button>
-
-<button class="btn-create" onclick="openCreateModal()">+</button>
-
-<div class="container">
-    <h1>Ordens de Compras</h1>
-    <div id="orders" class="ordem-grid">
-    </div>
-    <div id="deleted" class="ordem-grid" style="display: none;">
-    </div>
-</div>
-
 <!-- Modal de Edição -->
 <div id="editModal" class="modal">
     <div class="modal-content">
@@ -123,6 +121,15 @@
             <button type="button" onclick="uploadFile()">Anexar</button>
             <button type="button" class="cancel" onclick="closeFileModal()">Cancelar</button>
         </form>
+    </div>
+</div>
+<div id="telapermissao" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closePermissionsModal()">&times;</span>
+        <h2>Permissões do usuário</h2>
+        <div class="permissions-list">
+        </div>
+        <button class="save-button" onclick="savePermissions()">Salvar</button>
     </div>
 </div>
 <div id="permissionsModal" class="modal">
