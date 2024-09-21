@@ -3,25 +3,51 @@ package com.example.sync.service;
 import com.example.sync.model.Usuarios;
 import com.example.sync.repository.UsuariosRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class UsuariosService {
-    private final PasswordEncoder passwordEncoder;
-    private final UsuariosRepository usuariosRepository;
 
     @Autowired
-    public UsuariosService(PasswordEncoder passwordEncoder, UsuariosRepository usuariosRepository) {
-        this.passwordEncoder = passwordEncoder;
-        this.usuariosRepository = usuariosRepository;
+    private UsuariosRepository usuariosRepository;
+
+    public Usuarios autenticar(String email, String senha) {
+        Usuarios usuario = usuariosRepository.findByEmail(email);
+        if (usuario != null && usuario.getSenha().equals(senha)) {
+            return usuario;
+        }
+        return null;
     }
 
-    public boolean authenticate(String email, String senha) {
-        Usuarios usuarios = usuariosRepository.findByEmail(email);
-        if (usuarios != null) {
-            return passwordEncoder.matches(senha, usuarios.getSenha());
+    public List<Usuarios> getAllUsuarios() {
+        return usuariosRepository.findAll();
+    }
+
+    public Usuarios getUsuarioById(Integer id) {
+        return usuariosRepository.findById(id).orElse(null);
+    }
+
+    public Usuarios createUsuario(Usuarios usuario) {
+        return usuariosRepository.save(usuario);
+    }
+
+    public Usuarios updateUsuario(Integer id, Usuarios usuario) {
+        if (usuariosRepository.existsById(id)) {
+            usuario.setId(id);
+            return usuariosRepository.save(usuario);
+        } else {
+            return null;
         }
-        return false;
+    }
+    public boolean deleteUsuario(Integer id) {
+        if (usuariosRepository.existsById(id)) {
+            usuariosRepository.deleteById(id);
+            return true;
+        } else {
+            return false;
+        }
     }
 }
+

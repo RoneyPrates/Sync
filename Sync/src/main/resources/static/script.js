@@ -6,13 +6,14 @@ let currentFileOrder = null;
 document.addEventListener('DOMContentLoaded', () => {
     const fetchOrders = async () => {
         try {
-            const response = await fetch('/ordensdecompras'); // Chama o endpoint JSON
+            const response = await fetch('/ordensdecompras');
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
             const orders = await response.json();
-            ordens.push(...orders); // Preenche o array global de ordens
-            displayOrdem(ordens, 'orders');
+            ordens.push(...orders);
+            displayOrdem(ordens.filter(ordem => ordem.status !== 'Deletada'), 'orders');
+            displayOrdem(ordens.filter(ordem => ordem.status === 'Deletada'), 'deleted');
         } catch (error) {
             console.error('Erro ao buscar ordens:', error);
             document.getElementById('orders').innerHTML = '<p>Erro ao carregar ordens.</p>';
@@ -56,6 +57,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 return 'red';
             case 'Deletada':
                 return 'lightgray';
+            case 'Finalizada':
+                return 'blue'
             default:
                 return 'white';
         }
@@ -68,7 +71,7 @@ function editOrdem(id) {
     currentEditingOrder = ordens.find(ordem => ordem.id === id);
     if (currentEditingOrder) {
         document.getElementById('editId').value = currentEditingOrder.id;
-        document.getElementById('editValue').value = currentEditingOrder.valorOrdem; // Corrigido
+        document.getElementById('editValue').value = currentEditingOrder.valorOrdem;
         document.getElementById('editDate').value = currentEditingOrder.dataOrdem;
         document.getElementById('editObservacao').value = currentEditingOrder.observacao;
         document.getElementById('editModal').style.display = 'flex';
@@ -104,18 +107,27 @@ function closeCreateModal() {
     document.getElementById('createModal').style.display = 'none';
 }
 
-function createOrdem() {
-    const value = parseFloat(document.getElementById('createValue').value);
+async function createOrdem() {
     const date = document.getElementById('createDate').value;
-    const id = ordens.length ? Math.max(...ordens.map(o => o.id)) + 1 : 1;
     const observacao = document.getElementById('createObservacao').value;
+    const value = parseFloat(document.getElementById('createValue').value);
 
-    const newOrdem = { id, valorOrdem: value, dataOrdem: date, status: 'Pendente', observacao, file: '' };
-    ordens.push(newOrdem);
+    const newOrdem = { dataOrdem: date, observacao, status: 'Pendente', valorOrdem: value };
+    console.log('Enviando ordem:', newOrdem);
+    const response = await fetch('/ordensdecompras', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(newOrdem)
+        });
+    const createdOrder = await response.json();
+        ordens.push(createdOrder);
 
-    displayOrdem(ordens, 'orders');
+        alert('Ordem criada com sucesso! ID: ' + createdOrder.id);
+        closeCreateModal();
+        displayOrdem(ordens, 'orders');
 
-    closeCreateModal();
 }
 
 function viewInvoice(file) {
@@ -219,8 +231,12 @@ function updateOrders() {
     const filteredOrders = ordens.filter(ordem => {
         let isMatch = true;
 
-        if (startDate && new Date(ordem.dataOrdem) < new Date(startDate)) isMatch = false;
-        if (endDate && new Date(ordem.dataOrdem) > new Date(endDate)) isMatch = false;
+        // Convertendo as datas para YYYY-MM-DD
+        const startDateFormatted = startDate ? startDate.split('-').reverse().join('-') : null;
+        const endDateFormatted = endDate ? endDate.split('-').reverse().join('-') : null;
+
+        if (startDateFormatted && new Date(ordem.dataOrdem) < new Date(startDateFormatted)) isMatch = false;
+        if (endDateFormatted && new Date(ordem.dataOrdem) > new Date(endDateFormatted)) isMatch = false;
         if (user && !ordem.user.includes(user)) isMatch = false;
         if (numeroOrdem && ordem.id.toString().indexOf(numeroOrdem) === -1) isMatch = false;
         if (status && ordem.status !== status) isMatch = false;
@@ -236,7 +252,6 @@ document.getElementById("endDate").addEventListener("input", updateOrders);
 document.getElementById("user").addEventListener("input", updateOrders);
 document.getElementById("numeroOrdem").addEventListener("input", updateOrders);
 document.getElementById("status").addEventListener("change", updateOrders);
-
 
 function showSection(section) {
     document.getElementById('orders').style.display = section === 'orders' ? 'flex' : 'none';
@@ -268,7 +283,6 @@ function showPermissions() {
         let permissions = [];
         let checkboxesHtml = '';
 
-        // Determine as permissões com base no tipo de usuário informado
         if (currentOrderId === 'usuario') {
             permissions = [
                 { name: 'Criar ordem', enabled: true, checked: true },

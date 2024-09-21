@@ -4,63 +4,33 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.Collection;
-import java.util.Collections;
 
 @Entity
-public class Usuarios implements UserDetails {
+public class Usuarios {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
-    private String nome;      // Nome de usuário
-    private String email;     // E-mail
-    private String senha;     // Senha hash
+    private String nome;
+    private String email;
+    private String senha;
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.emptyList(); // Ou adicione uma lógica para autorizações, se necessário
+
+    public String getSenha() {
+        return senha;
     }
 
-    @Override
-    public String getPassword() {
-        return senha; // Retorna o hash da senha
+    public void setSenha(String senha) {
+        this.senha = senha;
     }
 
-    @Override
-    public String getUsername() {return email; // Retorna o nome de usuário
+    public String getEmail() {
+        return email;
     }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getNome() {
@@ -71,15 +41,11 @@ public class Usuarios implements UserDetails {
         this.nome = nome;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public Integer getId() {
+        return id;
     }
 
-    public String getSenha() {
-        return senha;
-    }
-
-    public void setSenha(String senha) {
-        this.senha = senha;
+    public void setId(Integer id) {
+        this.id = id;
     }
 }

@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +20,17 @@ public class OrdemController {
     @GetMapping
     public List<Ordem> getAllOrders() {
         return ordemService.getAllOrdens();
+    }
+
+    @PostMapping
+    public ResponseEntity<Ordem> createOrder(@RequestBody Ordem ordem) {
+        try {
+            Ordem createdOrder = ordemService.saveOrdem(ordem);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     @PatchMapping("/{id}/aprovar")
@@ -67,8 +77,5 @@ public class OrdemController {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ordem não encontrada");
-    }
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**").allowedOrigins("http://localhost:3000");
     }
 }

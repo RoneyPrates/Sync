@@ -11,7 +11,6 @@ import java.util.Optional;
 @Service
 public class OrdemService {
 
-    // Assumindo que você tenha um repositório de ordens
     @Autowired
     private OrdemRepository ordemRepository;
 
