@@ -45,7 +45,7 @@ public class OrdemController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ordem não encontrada");
     }
 
-    @PatchMapping("/{id}/rejeitar")
+    @PatchMapping("/{id}/reprovar")
     public ResponseEntity<?> rejectOrder(@PathVariable Long id) {
         Optional<Ordem> ordem = ordemService.getOrdemById(id);
         if (ordem.isPresent()) {
@@ -57,24 +57,40 @@ public class OrdemController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ordem não encontrada");
     }
 
-    @PatchMapping("/{id}/finalizar")
-    public ResponseEntity<?> finalizeOrder(@PathVariable Long id) {
+    @PatchMapping("/{id}/deletar")
+    public ResponseEntity<?> deleteOrdem(@PathVariable Long id) {
         Optional<Ordem> ordem = ordemService.getOrdemById(id);
         if (ordem.isPresent()) {
             Ordem ordemToUpdate = ordem.get();
-            ordemToUpdate.setStatus("Finalizado");
+            ordemToUpdate.setStatus("Deletada");
             ordemService.saveOrdem(ordemToUpdate);
             return ResponseEntity.ok(ordemToUpdate);
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ordem não encontrada");
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteOrder(@PathVariable Long id) {
+    @PatchMapping("/{id}/finalizar")
+    public ResponseEntity<?> finalizarOrdem(@PathVariable Long id) {
         Optional<Ordem> ordem = ordemService.getOrdemById(id);
         if (ordem.isPresent()) {
-            ordemService.deleteOrdem(id);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+            Ordem ordemToUpdate = ordem.get();
+            ordemToUpdate.setStatus("Finalizada");
+            ordemService.saveOrdem(ordemToUpdate);
+            return ResponseEntity.ok(ordemToUpdate);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ordem não encontrada");
+    }
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateOrder(@PathVariable Long id, @RequestBody Ordem ordemAtualizada) {
+        Optional<Ordem> ordemExistente = ordemService.getOrdemById(id);
+        if (ordemExistente.isPresent()) {
+            Ordem ordemToUpdate = ordemExistente.get();
+            ordemToUpdate.setObservacao(ordemAtualizada.getObservacao());
+            ordemToUpdate.setDataOrdem(ordemAtualizada.getDataOrdem());
+            ordemToUpdate.setValorOrdem(ordemAtualizada.getValorOrdem());
+
+            Ordem updatedOrder = ordemService.saveOrdem(ordemToUpdate);
+            return ResponseEntity.ok(updatedOrder);
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ordem não encontrada");
     }

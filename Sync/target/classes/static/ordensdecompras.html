@@ -111,18 +111,7 @@
     </div>
 </div>
 <!-- Modal para anexar arquivo -->
-<div id="fileModal" class="modal-file">
-    <div class="modal-file-content">
-        <h2>Anexar Nota Fiscal</h2>
-        <form id="fileForm">
-            <input type="hidden" id="fileId">
-            <label for="fileUpload">Escolha o arquivo:</label>
-            <input type="file" id="fileUpload" required>
-            <button type="button" onclick="uploadFile()">Anexar</button>
-            <button type="button" class="cancel" onclick="closeFileModal()">Cancelar</button>
-        </form>
-    </div>
-</div>
+<input type="file" id="fileUpload" accept=".pdf,.png,.jpg,.jpeg" style="display: none;" />
 <div id="telapermissao" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closePermissionsModal()">&times;</span>

@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch('/ordensdecompras');
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                throw new Error('Sem resposta do servidor');
             }
             const orders = await response.json();
             ordens.push(...orders);
@@ -29,20 +29,41 @@ document.addEventListener('DOMContentLoaded', () => {
             ordemItem.className = 'ordem-item';
             ordemItem.style.backgroundColor = getStatusColor(ordem.status);
             ordemItem.innerHTML = `
-                <p><strong>Número da Ordem:</strong> ${ordem.id}</p>
-                <p><strong>Data da Ordem:</strong> ${ordem.dataOrdem}</p>
-                <p><strong>Valor da Ordem:</strong> ${ordem.valorOrdem}</p>
-                <p><strong>Status:</strong> ${ordem.status}</p>
-                <p><strong>Observação:</strong> ${ordem.observacao}</p>
-                <div class="buttons">
-                    ${section === 'orders' ? `<button class="btn-edit" onclick="editOrdem(${ordem.id})"><img src="editar.png" alt="Editar"></button>` : ''}
-                    ${ordem.file ? `<button class="btn-invoice" onclick="viewInvoice('${ordem.file}')"><img src="notafiscal.png" alt="Nota Fiscal"></button>` : ''}
-                    ${section === 'orders' ? `<button class="btn-approve" onclick="approveOrdem(${ordem.id})"><img src="aprovada.png" alt="Aprovar"></button>` : ''}
-                    ${section === 'orders' ? `<button class="btn-reject" onclick="rejectOrdem(${ordem.id})"><img src="reprovada.png" alt="Reprovar"></button>` : ''}
-                    ${section === 'orders' ? `<button class="btn-delete" onclick="deleteOrdem(${ordem.id})"><img src="lixeira.png" alt="Excluir"></button>` : ''}
-                    ${section === 'orders' ? `<button class="btn-finalizar" onclick="finalizarOrdem(${ordem.id})"><img src="finalizado.png" alt="Finalizar"></button>` : ''}
-                </div>
-            `;
+            <p><strong>Número da Ordem:</strong> ${ordem.id}</p>
+            <p><strong>Data da Ordem:</strong> ${ordem.dataOrdem}</p>
+            <p><strong>Valor da Ordem:</strong> ${ordem.valorOrdem}</p>
+            <p><strong>Status:</strong> ${ordem.status}</p>
+            <p><strong>Observação:</strong> ${ordem.observacao}</p>
+            <div class="buttons">
+                ${section === 'orders' ?
+                (ordem.status === 'Pendente' ?
+                    `<button class="btn-edit" onclick="editOrdem(${ordem.id})"><img src="editar.png" alt="Editar"></button>
+                    <button class="btn-approve" onclick="approveOrdem(${ordem.id})"><img src="aprovada.png" alt="Aprovar"></button>
+                    <button class="btn-reject" onclick="rejectOrdem(${ordem.id})"><img src="reprovada.png" alt="Reprovar"></button>
+                    <button class="btn-delete" onclick="deleteOrdem(${ordem.id})"><img src="lixeira.png" alt="Excluir"></button>` : '') :
+                ''
+            }
+                ${section === 'orders' ?
+                (ordem.status === 'Aprovada' ?
+                    `<button class="btn-reject" onclick="rejectOrdem(${ordem.id})"><img src="reprovada.png" alt="Reprovar"></button>
+                    <button class="btn-delete" onclick="deleteOrdem(${ordem.id})"><img src="lixeira.png" alt="Excluir"></button>
+                    <button class="btn-finalizar" onclick="finalizarOrdem(${ordem.id})"><img src="finalizado.png" alt="Finalizar"></button>` : '') :
+                ''
+            }
+                ${section === 'orders' ?
+                (ordem.status === 'Reprovada' ?
+                    `<button class="btn-edit" onclick="editOrdem(${ordem.id})"><img src="editar.png" alt="Editar"></button>
+                    <button class="btn-approve" onclick="approveOrdem(${ordem.id})"><img src="aprovada.png" alt="Aprovar"></button>
+                    <button class="btn-delete" onclick="deleteOrdem(${ordem.id})"><img src="lixeira.png" alt="Excluir"></button>` : '') :
+                ''
+            } 
+                 ${section === 'orders' ?
+                (ordem.status === 'Finalizada' ?
+                    `<button class="btn-invoice" onclick="viewInvoice('${ordem.file}')"><img src="notafiscal.png" alt="Nota Fiscal"></button>` : '') :
+                ''
+            }                          
+            </div>
+        `;
             ordemGrid.appendChild(ordemItem);
         });
     }
@@ -67,146 +88,196 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchOrders();
 });
 
-function editOrdem(id) {
-    currentEditingOrder = ordens.find(ordem => ordem.id === id);
-    if (currentEditingOrder) {
-        document.getElementById('editId').value = currentEditingOrder.id;
-        document.getElementById('editValue').value = currentEditingOrder.valorOrdem;
-        document.getElementById('editDate').value = currentEditingOrder.dataOrdem;
-        document.getElementById('editObservacao').value = currentEditingOrder.observacao;
-        document.getElementById('editModal').style.display = 'flex';
-    }
-}
-
-function closeModal() {
-    document.getElementById('editModal').style.display = 'none';
-}
-
-function saveEdit() {
-    const id = document.getElementById('editId').value;
-    const value = parseFloat(document.getElementById('editValue').value);
-    const date = document.getElementById('editDate').value;
-    const observacao = document.getElementById('editObservacao').value;
-
-    if (currentEditingOrder) {
-        currentEditingOrder.valorOrdem = value;
-        currentEditingOrder.dataOrdem = date;
-        currentEditingOrder.observacao = observacao;
-
-        displayOrdem(ordens, 'orders');
-
-        closeModal();
-    }
-}
-
-function openCreateModal() {
-    document.getElementById('createModal').style.display = 'flex';
-}
-
-function closeCreateModal() {
-    document.getElementById('createModal').style.display = 'none';
-}
-
 async function createOrdem() {
     const date = document.getElementById('createDate').value;
     const observacao = document.getElementById('createObservacao').value;
     const value = parseFloat(document.getElementById('createValue').value);
-
+    if (isNaN(value) || value <= 0) {
+        alert('Por favor, preencha um valor válido.');
+        return;
+    }
+    if (!date) {
+        alert('Por favor, preencha a data.');
+        return;
+    }
     const newOrdem = { dataOrdem: date, observacao, status: 'Pendente', valorOrdem: value };
     console.log('Enviando ordem:', newOrdem);
     const response = await fetch('/ordensdecompras', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(newOrdem)
-        });
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newOrdem)
+    });
+    if (!response.ok) {
+        alert('Erro ao criar a ordem. Por favor, tente novamente.');
+        return;
+    }
     const createdOrder = await response.json();
-        ordens.push(createdOrder);
-
-        alert('Ordem criada com sucesso! ID: ' + createdOrder.id);
-        closeCreateModal();
-        displayOrdem(ordens, 'orders');
-
+    ordens.push(createdOrder);
+    alert('Ordem criada com sucesso! ID: ' + createdOrder.id);
+    location.reload();
+}
+function openCreateModal() {
+    document.getElementById('createModal').style.display = 'flex';
+}
+function closeCreateModal() {
+    document.getElementById('createModal').style.display = 'none';
 }
 
-function viewInvoice(file) {
-    window.open(file, '_blank');
-}
-
-function deleteOrdem(id) {
-    if (confirm(`Você tem certeza que deseja excluir a ordem ${id}?`)) {
-        const ordemIndex = ordens.findIndex(ordem => ordem.id === id);
-        if (ordemIndex !== -1) {
-            ordens[ordemIndex].status = 'Deletado';
-            deletedOrdens.push(ordens[ordemIndex]);
-            ordens.splice(ordemIndex, 1);
-            displayOrdem(ordens, 'orders');
-            displayOrdem(deletedOrdens, 'deleted');
-
-            alert(`Ordem ${id} excluída`);
-        }
+function saveEdit() {
+    const date = document.getElementById('editDate').value;
+    const observacao = document.getElementById('editObservacao').value;
+    const value = parseFloat(document.getElementById('editValue').value);
+    if (currentEditingOrder) {
+        currentEditingOrder.dataOrdem = date;
+        currentEditingOrder.observacao = observacao;
+        currentEditingOrder.valorOrdem = value;
+        fetch(`/ordensdecompras/${currentEditingOrder.id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                valorOrdem: value,
+                dataOrdem: date,
+                observacao: observacao
+            })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao atualizar a ordem');
+                }
+                return response.json();
+            })
+            .then(updatedOrder => {
+                const index = ordens.findIndex(ordem => ordem.id === updatedOrder.id);
+                if (index !== -1) {
+                    ordens[index] = updatedOrder;
+                }
+                alert('Ordem editada com sucesso!');
+                location.reload();
+            });
     }
 }
-
+function editOrdem(id) {
+    currentEditingOrder = ordens.find(ordem => ordem.id === id);
+    if (currentEditingOrder) {
+        document.getElementById('editDate').value = currentEditingOrder.dataOrdem;
+        document.getElementById('editObservacao').value = currentEditingOrder.observacao;
+        document.getElementById('editValue').value = currentEditingOrder.valorOrdem;
+        document.getElementById('editModal').style.display = 'flex';
+    }
+}
 async function approveOrdem(id) {
     const ordem = ordens.find(ordem => ordem.id === id);
     if (ordem) {
-        try {
-            const response = await fetch(`/ordensdecompras/${id}/aprovar`, {
-                method: 'PATCH', // Ou o método apropriado para sua API
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ status: 'Aprovada' })
-            });
+        const response = await fetch(`/ordensdecompras/${id}/aprovar`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status: 'Aprovada' })
+        });
 
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-
-            ordem.status = 'Aprovada';
-
-            displayOrdem(ordens, 'orders');
-        } catch (error) {
-            console.error('Erro ao aprovar a ordem:', error);
-            alert('Erro ao aprovar a ordem.');
+        if (!response.ok) {
+            throw new Error('Sem resposta do servidor');
         }
+        ordem.status = 'Aprovada';
+        alert('Ordem aprovada com sucesso!');
+        location.reload();
     }
 }
 
 async function rejectOrdem(id) {
     const ordem = ordens.find(ordem => ordem.id === id);
     if (ordem) {
-        try {
-            const response = await fetch(`/ordensdecompras/${id}/rejeitar`, {
-                method: 'PATCH', // Ou o método apropriado para sua API
+        const response = await fetch(`/ordensdecompras/${id}/reprovar`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status: 'Reprovada' })
+        });
+        if (!response.ok) {
+            throw new Error('Sem resposta do servidor');
+        }
+        ordem.status = 'Reprovada';
+        alert('Ordem reprovada com sucesso!');
+        location.reload();
+    }
+}
+async function deleteOrdem(id) {
+    if (confirm(`Você tem certeza que deseja marcar a ordem ${id} como deletada?`)) {
+        const ordem = ordens.find(ordem => ordem.id === id);
+        if (ordem) {
+            const response = await fetch(`/ordensdecompras/${id}/deletar`, {
+                method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ status: 'Reprovada' })
+                body: JSON.stringify({ status: 'Deletada' })
             });
-
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                throw new Error('Erro ao atualizar a ordem no servidor');
             }
-            ordem.status = 'Reprovada';
-
-            displayOrdem(ordens, 'orders');
-        } catch (error) {
-            console.error('Erro ao rejeitar a ordem:', error);
-            alert('Erro ao rejeitar a ordem.');
+            ordem.status = 'Deletada';
+            alert('Ordem deletada com sucesso!');
+            location.reload();
         }
     }
 }
+function openFileUpload() {
+    const fileInput = document.getElementById('fileUpload');
+    fileInput.click(); // Simula um clique no input de arquivo
+}
+async function finalizarOrdem(id) {
+    const ordem = ordens.find(ordem => ordem.id === id);
+    if (ordem) {
+        openFileUpload();
+        const fileInput = document.getElementById('fileUpload');
+        fileInput.onchange = async () => {
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const validExtensions = ['.pdf', '.png', '.jpg', '.jpeg'];
+                const fileExtension = file.name.slice(((file.name.lastIndexOf(".") - 1) >>> 0) + 2).toLowerCase();
+                if (validExtensions.includes(`.${fileExtension}`)) {
+                    const response = await fetch(`/ordensdecompras/${id}/finalizar`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ status: 'Finalizada' })
+                    });
+                    if (!response.ok) {
+                        throw new Error('Erro ao atualizar a ordem no servidor');
+                    }
+                    ordem.status = 'Finalizada';
+                    alert('Ordem finalizada com sucesso!');
+                    location.reload();
+                } else {
+                    alert('Você deve adicionar um arquivo PDF, PNG ou JPG válido.');
+                }
+            }
+        };
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 function openNav() {
     var sidebar = document.getElementById("mySidebar");
     sidebar.classList.toggle("open");
-}
-
-function logout() {
-    window.location.href = "http://localhost:8080/login";
 }
 
 function toggleForm() {
@@ -221,38 +292,6 @@ function toggleForm() {
     }
 }
 
-function updateOrders() {
-    var startDate = document.getElementById("startDate").value;
-    var endDate = document.getElementById("endDate").value;
-    var user = document.getElementById("user").value;
-    var numeroOrdem = document.getElementById("numeroOrdem").value;
-    var status = document.getElementById("status").value;
-
-    const filteredOrders = ordens.filter(ordem => {
-        let isMatch = true;
-
-        // Convertendo as datas para YYYY-MM-DD
-        const startDateFormatted = startDate ? startDate.split('-').reverse().join('-') : null;
-        const endDateFormatted = endDate ? endDate.split('-').reverse().join('-') : null;
-
-        if (startDateFormatted && new Date(ordem.dataOrdem) < new Date(startDateFormatted)) isMatch = false;
-        if (endDateFormatted && new Date(ordem.dataOrdem) > new Date(endDateFormatted)) isMatch = false;
-        if (user && !ordem.user.includes(user)) isMatch = false;
-        if (numeroOrdem && ordem.id.toString().indexOf(numeroOrdem) === -1) isMatch = false;
-        if (status && ordem.status !== status) isMatch = false;
-
-        return isMatch;
-    });
-
-    displayOrdem(filteredOrders, 'orders');
-}
-
-document.getElementById("startDate").addEventListener("input", updateOrders);
-document.getElementById("endDate").addEventListener("input", updateOrders);
-document.getElementById("user").addEventListener("input", updateOrders);
-document.getElementById("numeroOrdem").addEventListener("input", updateOrders);
-document.getElementById("status").addEventListener("change", updateOrders);
-
 function showSection(section) {
     document.getElementById('orders').style.display = section === 'orders' ? 'flex' : 'none';
     document.getElementById('deleted').style.display = section === 'deleted' ? 'flex' : 'none';
@@ -261,22 +300,6 @@ function closeFileModal() {
     document.getElementById('fileModal').style.display = 'none';
 }
 
-function uploadFile() {
-    const fileInput = document.getElementById('fileUpload');
-    if (currentFileOrder) {
-        if (fileInput.files.length > 0) {
-            const file = fileInput.files[0];
-            const fileUrl = URL.createObjectURL(file);
-            currentFileOrder.file = fileUrl;
-            currentFileOrder.status = 'Finalizado';
-        } else {
-            currentFileOrder.status = 'Aprovado';
-            currentFileOrder.file = '';
-        }
-        closeFileModal();
-        displayOrdem(ordens, 'orders');
-    }
-}
 function showPermissions() {
     const currentOrderId = prompt("Digite o tipo do usuário para gerenciar permissões:");
     if (currentOrderId) {
@@ -345,6 +368,9 @@ function savePermissions() {
     console.log('Permissões salvas:', permissions);
 
     closePermissionsModal();
+}
+function logout() {
+    window.location.href = "http://localhost:8080/login";
 }
 
 displayOrdem(ordens, 'orders');
