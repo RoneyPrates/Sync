@@ -15,6 +15,7 @@ public class Ordem {
     private LocalDate dataOrdem;
     private BigDecimal valorOrdem;
     private String status;
+    private Byte anexo;
 
     public String getStatus() {
         return status;
@@ -56,4 +57,6 @@ public class Ordem {
     public void setObservacao(String observacao) {
         this.observacao = observacao;
     }
+    public Byte getAnexo() {return anexo;}
+    public void setAnexo(Byte anexo) {this.anexo = anexo;}
 }

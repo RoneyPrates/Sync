@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } 
                  ${section === 'orders' ?
                 (ordem.status === 'Finalizada' ?
-                    `<button class="btn-invoice" onclick="viewInvoice('${ordem.file}')"><img src="notafiscal.png" alt="Nota Fiscal"></button>` : '') :
+                    `<button class="btn-invoice" onclick="abrirNotaFiscal('${ordem.id}')"><img src="notafiscal.png" alt="Nota Fiscal"></button>` : '') :
                 ''
             }                          
             </div>
@@ -169,6 +169,9 @@ function editOrdem(id) {
         document.getElementById('editModal').style.display = 'flex';
     }
 }
+function closeModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
 async function approveOrdem(id) {
     const ordem = ordens.find(ordem => ordem.id === id);
     if (ordem) {
@@ -229,7 +232,7 @@ async function deleteOrdem(id) {
 }
 function openFileUpload() {
     const fileInput = document.getElementById('fileUpload');
-    fileInput.click(); // Simula um clique no input de arquivo
+    fileInput.click();
 }
 async function finalizarOrdem(id) {
     const ordem = ordens.find(ordem => ordem.id === id);
@@ -275,6 +278,33 @@ async function finalizarOrdem(id) {
 
 
 
+
+
+
+
+
+async function abrirNotaFiscal(ordemId) {
+    try {
+        const response = await fetch(`/abrirNotaFiscal?id=${ordemId}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/octet-stream'
+            }
+        });
+        if (!response.ok) {
+            throw new Error('Erro ao buscar nota fiscal');
+        }
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        setTimeout(() => {
+            window.URL.revokeObjectURL(url);
+        }, 100);
+
+    } catch (error) {
+        alert(error.message);
+    }
+}
 function openNav() {
     var sidebar = document.getElementById("mySidebar");
     sidebar.classList.toggle("open");
@@ -295,9 +325,6 @@ function toggleForm() {
 function showSection(section) {
     document.getElementById('orders').style.display = section === 'orders' ? 'flex' : 'none';
     document.getElementById('deleted').style.display = section === 'deleted' ? 'flex' : 'none';
-}
-function closeFileModal() {
-    document.getElementById('fileModal').style.display = 'none';
 }
 
 function showPermissions() {

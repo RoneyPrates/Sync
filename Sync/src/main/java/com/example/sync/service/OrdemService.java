@@ -25,8 +25,4 @@ public class OrdemService {
     public Ordem saveOrdem(Ordem ordem) {
         return ordemRepository.save(ordem);
     }
-
-    public void deleteOrdem(Long id) {
-        ordemRepository.deleteById(id);
-    }
 }

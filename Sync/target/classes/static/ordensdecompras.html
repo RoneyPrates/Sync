@@ -18,11 +18,12 @@
 
     </div>
 </div>
-<!-- Menu Lateral -->
 <div id="mySidebar" class="sidebar">
     <a href="javascript:void(0)" onclick="showSection('orders')">Ordens de Compras</a>
     <a href="javascript:void(0)" onclick="showSection('deleted')">Ordens de Compras Excluídas</a>
     <a href="javascript:void(0)" onclick="showPermissions()">Permissões</a>
+    <a href="javascript:void(0)" onclick="showPermissions()">Cadastro de Produtos</a>
+    <a href="javascript:void(0)" onclick="showPermissions()">Cadastro de Usuários</a>
     <a href="javascript:void(0)" onclick="logout()">Sair</a>
 </div>
 
@@ -69,7 +70,6 @@
         </form>
     </div>
 </div>
-<!-- Modal de Edição -->
 <div id="editModal" class="modal">
     <div class="modal-content">
         <h2>Editar Ordem</h2>
@@ -87,11 +87,11 @@
 
             <button type="button" onclick="saveEdit()">Salvar</button>
             <button type="button" class="cancel" onclick="closeModal()">Cancelar</button>
+            <button type="button" class="adProduto" onclick="adProdutoModal()">Adicionar Produtos</button>
         </form>
     </div>
 </div>
 
-<!-- Modal de Criação -->
 <div id="createModal" class="modal">
     <div class="modal-content">
         <h2>Nova Ordem</h2>
@@ -107,10 +107,10 @@
 
             <button type="button" onclick="createOrdem()">Criar</button>
             <button type="button" class="cancel" onclick="closeCreateModal()">Cancelar</button>
+            <button type="button" class="adProduto" onclick="adProdutoModal()">Adicionar Produtos</button>
         </form>
     </div>
 </div>
-<!-- Modal para anexar arquivo -->
 <input type="file" id="fileUpload" accept=".pdf,.png,.jpg,.jpeg" style="display: none;" />
 <div id="telapermissao" class="modal">
     <div class="modal-content">
