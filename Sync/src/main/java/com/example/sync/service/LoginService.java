@@ -11,9 +11,8 @@ public class LoginService {
     @Autowired
     private UsuariosRepository usuariosRepository;
 
-    public boolean autenticar(String email, String senha) {
-        Usuarios usuarioEncontrado = usuariosRepository.findByEmail(email);
-        Usuarios senhaEncontrada = usuariosRepository.findBySenha(senha);
-        return usuarioEncontrado != null && senhaEncontrada.getSenha().equals(senha);
-    }
+public boolean autenticar(String email, String senha) {
+    Usuarios usuarioEncontrado = usuariosRepository.findByEmail(email);
+    return usuarioEncontrado != null && usuarioEncontrado.getSenha().equals(senha);
+}
 }
