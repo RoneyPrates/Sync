@@ -18,24 +18,25 @@
 
     </div>
 </div>
-<div id="mySidebar" class="sidebar">
+<div id="menu" class="menu">
     <a href="javascript:void(0)" onclick="showSection('orders')">Ordens de Compras</a>
     <a href="javascript:void(0)" onclick="showSection('deleted')">Ordens de Compras Excluídas</a>
     <a href="javascript:void(0)" onclick="showPermissions()">Permissões</a>
     <a href="javascript:void(0)" onclick="showPermissions()">Cadastro de Produtos</a>
     <a href="javascript:void(0)" onclick="showPermissions()">Cadastro de Usuários</a>
+    <a href="javascript:void(0)" onclick="showPermissions()">Cadastro de Filiais</a>
     <a href="javascript:void(0)" onclick="logout()">Sair</a>
 </div>
 
 <button class="openbtn" onclick="openNav()">☰ Menu</button>
 
-<button class="toggle-btn" onclick="toggleForm()">Filtros</button>
+<button class="abrirFiltros" onclick="abrirFiltros()">Filtros</button>
 
-<button class="btn-create" onclick="openCreateModal()">+</button>
+<button class="btn-create" onclick="openCreateModal()"></button>
 
 <div class="container">
     <h1>Ordens de Compras</h1>
-    <div id="orders" class="ordem-grid">
+    <div id="ordensBanco" class="ordem-grid">
     </div>
     <div id="deleted" class="ordem-grid" style="display: none;">
     </div>
@@ -62,13 +63,14 @@
             <label for="status">Status:</label>
             <select id="status" name="status">
                 <option value="">Todos</option>
-                <option value="pendente">Pendente</option>
-                <option value="reprovado">Reprovado</option>
-                <option value="aprovado">Aprovado</option>
-                <option value="finalizado">Finalizado</option>
+                <option value="Pendente">Pendente</option>
+                <option value="Reprovada">Reprovada</option>
+                <option value="Aprovada">Aprovada</option>
+                <option value="Finalizada">Finalizada</option>
             </select>
         </form>
     </div>
+    <button class="btAplicarFiltros" id="aplicarFiltros">Aplicar Filtros</button>
 </div>
 <div id="editModal" class="modal">
     <div class="modal-content">
@@ -112,25 +114,6 @@
     </div>
 </div>
 <input type="file" id="fileUpload" accept=".pdf,.png,.jpg,.jpeg" style="display: none;" />
-<div id="telapermissao" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closePermissionsModal()">&times;</span>
-        <h2>Permissões do usuário</h2>
-        <div class="permissions-list">
-        </div>
-        <button class="save-button" onclick="savePermissions()">Salvar</button>
-    </div>
-</div>
-<div id="permissionsModal" class="modal">
-    <div class="modal-content">
-        <h2>Permissões</h2>
-        <p>Escolha a ação para a ordem selecionada:</p>
-        <button type="button" onclick="editOrder()">Editar</button>
-        <button type="button" onclick="deleteOrder()">Excluir</button>
-        <button type="button" onclick="openOrder()">Abrir</button>
-        <button type="button" class="cancel" onclick="closePermissionsModal()">Cancelar</button>
-    </div>
-</div>
 <script src="script.js"></script>
 </body>
 </html>

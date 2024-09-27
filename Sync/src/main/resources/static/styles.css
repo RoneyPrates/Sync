@@ -156,7 +156,7 @@ h1 {
     background-color: #c82333;
 }
 
-.sidebar {
+.menu {
     height: auto;
     width: 250px;
     position: absolute;
@@ -169,7 +169,7 @@ h1 {
     z-index: 1000;
     padding-top: 60px;
 }
-.sidebar a {
+.menu a {
     padding: 15px 25px;
     text-decoration: none;
     font-size: 18px;
@@ -177,10 +177,10 @@ h1 {
     display: block;
     transition: 0.3s;
 }
-.sidebar a:hover {
+.menu a:hover {
     background-color: #575757;
 }
-.sidebar .closebtn {
+.menu .closebtn {
     position: absolute;
     top: 0px;
     right: 25px;
@@ -203,7 +203,7 @@ h1 {
 .openbtn:hover {
     background-color: #0056b3;
 }
-.sidebar.open {
+.menu.open {
     left: 0;
 }
 
@@ -341,7 +341,7 @@ h1 {
     width: 100%;
 }
 
-.toggle-btn {
+.abrirFiltros {
     font-size: 20px;
     cursor: pointer;
     transition: 0.3s;
@@ -352,6 +352,20 @@ h1 {
     padding: 10px 15px;
     position: fixed;
     top: 140px;
+    right: 20px;
+    z-index: 1001;
+}
+.btAplicarFiltros {
+    font-size: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 15px;
+    position: fixed;
+    top: 300px;
     right: 20px;
     z-index: 1001;
 }

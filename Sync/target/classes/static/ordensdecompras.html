@@ -18,7 +18,7 @@
 
     </div>
 </div>
-<div id="mySidebar" class="sidebar">
+<div id="menu" class="menu">
     <a href="javascript:void(0)" onclick="showSection('orders')">Ordens de Compras</a>
     <a href="javascript:void(0)" onclick="showSection('deleted')">Ordens de Compras Excluídas</a>
     <a href="javascript:void(0)" onclick="showPermissions()">Permissões</a>
@@ -29,13 +29,13 @@
 
 <button class="openbtn" onclick="openNav()">☰ Menu</button>
 
-<button class="toggle-btn" onclick="toggleForm()">Filtros</button>
+<button class="abrirFiltros" onclick="abrirFiltros()">Filtros</button>
 
 <button class="btn-create" onclick="openCreateModal()">+</button>
 
 <div class="container">
     <h1>Ordens de Compras</h1>
-    <div id="orders" class="ordem-grid">
+    <div id="ordensBanco" class="ordem-grid">
     </div>
     <div id="deleted" class="ordem-grid" style="display: none;">
     </div>
@@ -62,13 +62,14 @@
             <label for="status">Status:</label>
             <select id="status" name="status">
                 <option value="">Todos</option>
-                <option value="pendente">Pendente</option>
-                <option value="reprovado">Reprovado</option>
-                <option value="aprovado">Aprovado</option>
-                <option value="finalizado">Finalizado</option>
+                <option value="Pendente">Pendente</option>
+                <option value="Reprovada">Reprovada</option>
+                <option value="Aprovada">Aprovada</option>
+                <option value="Finalizada">Finalizada</option>
             </select>
         </form>
     </div>
+    <button class="btAplicarFiltros" id="aplicarFiltros">Aplicar Filtros</button>
 </div>
 <div id="editModal" class="modal">
     <div class="modal-content">

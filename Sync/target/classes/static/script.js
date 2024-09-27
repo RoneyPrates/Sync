@@ -4,38 +4,43 @@ let currentEditingOrder = null;
 let currentFileOrder = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-    const fetchOrders = async () => {
-        try {
-            const response = await fetch('/ordensdecompras');
-            if (!response.ok) {
-                throw new Error('Sem resposta do servidor');
-            }
-            const orders = await response.json();
-            ordens.push(...orders);
-            displayOrdem(ordens.filter(ordem => ordem.status !== 'Deletada'), 'orders');
-            displayOrdem(ordens.filter(ordem => ordem.status === 'Deletada'), 'deleted');
-        } catch (error) {
-            console.error('Erro ao buscar ordens:', error);
-            document.getElementById('orders').innerHTML = '<p>Erro ao carregar ordens.</p>';
+    fetchOrders();
+    document.getElementById('aplicarFiltros').addEventListener('click', aplicarFiltros);
+});
+const fetchOrders = async () => {
+    try {
+        const response = await fetch('/ordensdecompras');
+        if (!response.ok) {
+            throw new Error('Sem resposta do servidor');
         }
-    };
+        const ordensBanco = await response.json();
+        ordens.push(...ordensBanco);
+        displayOrdens();
+    } catch (error) {
+        console.error('Erro ao buscar ordens:', error);
+        document.getElementById('ordensBanco').innerHTML = '<p>Erro ao carregar ordens.</p>';
+    }
+};
+function displayOrdens(filteredOrdens = ordens) {
+    displayOrdem(filteredOrdens.filter(ordem => ordem.status !== 'Deletada'), 'ordensBanco');
+    displayOrdem(filteredOrdens.filter(ordem => ordem.status === 'Deletada'), 'deleted');
+}
+function displayOrdem(ordens, section) {
+    const ordemGrid = document.getElementById(section);
+    ordemGrid.innerHTML = '';
 
-    function displayOrdem(ordens, section) {
-        const ordemGrid = document.getElementById(section);
-        ordemGrid.innerHTML = '';
-
-        ordens.forEach(ordem => {
-            const ordemItem = document.createElement('div');
-            ordemItem.className = 'ordem-item';
-            ordemItem.style.backgroundColor = getStatusColor(ordem.status);
-            ordemItem.innerHTML = `
+    ordens.forEach(ordem => {
+        const ordemItem = document.createElement('div');
+        ordemItem.className = 'ordem-item';
+        ordemItem.style.backgroundColor = getStatusColor(ordem.status);
+        ordemItem.innerHTML = `
             <p><strong>Número da Ordem:</strong> ${ordem.id}</p>
             <p><strong>Data da Ordem:</strong> ${ordem.dataOrdem}</p>
             <p><strong>Valor da Ordem:</strong> ${ordem.valorOrdem}</p>
             <p><strong>Status:</strong> ${ordem.status}</p>
             <p><strong>Observação:</strong> ${ordem.observacao}</p>
             <div class="buttons">
-                ${section === 'orders' ?
+                ${section === 'ordensBanco' ?
                 (ordem.status === 'Pendente' ?
                     `<button class="btn-edit" onclick="editOrdem(${ordem.id})"><img src="editar.png" alt="Editar"></button>
                     <button class="btn-approve" onclick="approveOrdem(${ordem.id})"><img src="aprovada.png" alt="Aprovar"></button>
@@ -44,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button class="btn-delete" onclick="deleteOrdem(${ordem.id})"><img src="lixeira.png" alt="Excluir"></button>` : '') :
                 ''
             }
-                ${section === 'orders' ?
+                ${section === 'ordensBanco' ?
                 (ordem.status === 'Aprovada' ?
                     `<button class="btn-reject" onclick="rejectOrdem(${ordem.id})"><img src="reprovada.png" alt="Reprovar"></button>
                     <button class="btn-delete" onclick="deleteOrdem(${ordem.id})"><img src="lixeira.png" alt="Excluir"></button>
@@ -52,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button class="btn-finalizar" onclick="finalizarOrdem(${ordem.id})"><img src="finalizado.png" alt="Finalizar"></button>` : '') :
                 ''
             }
-                ${section === 'orders' ?
+                ${section === 'ordensBanco' ?
                 (ordem.status === 'Reprovada' ?
                     `<button class="btn-edit" onclick="editOrdem(${ordem.id})"><img src="editar.png" alt="Editar"></button>
                     <button class="btn-approve" onclick="approveOrdem(${ordem.id})"><img src="aprovada.png" alt="Aprovar"></button>
@@ -60,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button class="btn-delete" onclick="deleteOrdem(${ordem.id})"><img src="lixeira.png" alt="Excluir"></button>` : '') :
                 ''
             } 
-                 ${section === 'orders' ?
+                 ${section === 'ordensBanco' ?
                 (ordem.status === 'Finalizada' ?
                     `<button class="btn-produto" onclick="abrirProdutos(${ordem.id})"><img src="visualizar.png" alt="Visualizar Produtos"></button>                    
                     <button class="btn-invoice" onclick="abrirNotaFiscal('${ordem.id}')"><img src="notafiscal.png" alt="Nota Fiscal"></button>` : '') :
@@ -71,7 +76,6 @@ document.addEventListener('DOMContentLoaded', () => {
             ordemGrid.appendChild(ordemItem);
         });
     }
-
     function getStatusColor(status) {
         switch (status) {
             case 'Pendente':
@@ -88,10 +92,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return 'white';
         }
     }
-
-    fetchOrders();
-});
-
 async function createOrdem() {
     const date = document.getElementById('createDate').value;
     const observacao = document.getElementById('createObservacao').value;
@@ -269,13 +269,27 @@ async function finalizarOrdem(id) {
         };
     }
 }
+function abrirFiltros() {
+    document.querySelector(".abrirFiltros").textContent = "Filtros";
+    document.getElementById('formContainer').style.display = 'block';
+}
+function aplicarFiltros() {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    const user = document.getElementById('user').value;
+    const numeroOrdem = document.getElementById('numeroOrdem').value;
+    const status = document.getElementById('status').value;
 
-
-
-
-
-
-
+    const filteredOrders = ordens.filter(ordem => {
+        return (!startDate || new Date(ordem.dataOrdem) >= new Date(startDate)) &&
+            (!endDate || new Date(ordem.dataOrdem) <= new Date(endDate)) &&
+            (!user || ordem.usuario.includes(user)) &&
+            (!numeroOrdem || ordem.id.toString().includes(numeroOrdem)) &&
+            (!status || ordem.status === status);
+    });
+    displayOrdens(filteredOrders);
+    document.getElementById('formContainer').style.display = 'none';
+}
 
 
 
@@ -308,100 +322,30 @@ async function abrirNotaFiscal(ordemId) {
         alert(error.message);
     }
 }
+
+
+
+
+
 function openNav() {
-    var sidebar = document.getElementById("mySidebar");
-    sidebar.classList.toggle("open");
+    var menu = document.getElementById("menu");
+    menu.classList.toggle("open");
 }
-
-function toggleForm() {
-    var formContainer = document.getElementById("formContainer");
-    if (formContainer.style.display === "none" || formContainer.style.display === "") {
-        formContainer.style.display = "block";
-        document.querySelector(".toggle-btn").textContent = "Ocultar";
-        updateOrders();
-    } else {
-        formContainer.style.display = "none";
-        document.querySelector(".toggle-btn").textContent = "Filtros";
-    }
-}
-
 function showSection(section) {
-    document.getElementById('orders').style.display = section === 'orders' ? 'flex' : 'none';
+    document.getElementById('ordensBanco').style.display = section === 'ordensBanco' ? 'flex' : 'none';
     document.getElementById('deleted').style.display = section === 'deleted' ? 'flex' : 'none';
+    document.getElementById('permissions').style.display = section === 'permissions' ? 'flex' : 'none';
+    document.getElementById('cadastroProdutos').style.display = section === 'cadastroProdutos' ? 'flex' : 'none';
+    document.getElementById('cadastroUsuarios').style.display = section === 'cadastroUsuarios' ? 'flex' : 'none';
 }
-
 function showPermissions() {
-    const currentOrderId = prompt("Digite o tipo do usuário para gerenciar permissões:");
-    if (currentOrderId) {
-        let permissions = [];
-        let checkboxesHtml = '';
-
-        if (currentOrderId === 'usuario') {
-            permissions = [
-                { name: 'Criar ordem', enabled: true, checked: true },
-                { name: 'Visualizar nota fiscal', enabled: true, checked: true },
-                { name: 'Editar ordem', enabled: false, checked: false },
-                { name: 'Aprovar ordem', enabled: false, checked: false },
-                { name: 'Reprovar ordem', enabled: false, checked: false },
-                { name: 'Deletar ordem', enabled: false, checked: false }
-            ];
-        } else if (currentOrderId === 'admin') {
-            permissions = [
-                { name: 'Criar ordem', enabled: true, checked: true },
-                { name: 'Editar ordem', enabled: true, checked: true },
-                { name: 'Visualizar nota fiscal', enabled: true, checked: true },
-                { name: 'Aprovar ordem', enabled: true, checked: true },
-                { name: 'Reprovar ordem', enabled: true, checked: true },
-                { name: 'Deletar ordem', enabled: true, checked: true }
-            ];
-        } else {
-            permissions = [{ name: 'Tipo de usuário desconhecido', enabled: false, checked: false }];
-        }
-
-        permissions.forEach(permission => {
-            checkboxesHtml += `
-                <div class="permission-item">
-                    <input type="checkbox" id="perm-${permission.name.replace(/\s+/g, '-')}" ${permission.enabled ? '' : 'disabled'} ${permission.checked ? 'checked' : ''}>
-                    <label for="perm-${permission.name.replace(/\s+/g, '-')}" contenteditable="${currentOrderId === 'admin'}">${permission.name}</label>
-                </div>
-            `;
-        });
-
-        const permissionsModal = document.getElementById('telapermissao');
-        permissionsModal.innerHTML = `
-            <div class="modal-content">
-                <span class="close" onclick="closePermissionsModal()">&times;</span>
-                <h2>Permissões do usuário ${currentOrderId}</h2>
-                <div class="permissions-list">${checkboxesHtml}</div>
-                <button class="save-button" onclick="savePermissions()">Salvar</button>
-            </div>
-        `;
-        permissionsModal.style.display = 'flex';
-    }
-}
-
-function closePermissionsModal() {
-    document.getElementById('telapermissao').style.display = 'none';
-}
-
-function savePermissions() {
-    const checkboxes = document.querySelectorAll('#telapermissao .permission-item input[type="checkbox"]');
-    const permissions = [];
-
-    checkboxes.forEach(checkbox => {
-        permissions.push({
-            name: checkbox.nextElementSibling.textContent,
-            checked: checkbox.checked
-        });
-    });
-
-    console.log('Permissões salvas:', permissions);
-
-    closePermissionsModal();
+    document.getElementById('permissions').style.display = 'flex';
+    document.getElementById('ordensBanco').style.display = 'none';
+    document.getElementById('deleted').style.display = 'none';
 }
 function logout() {
     window.location.href = "http://localhost:8080/login";
 }
 
-displayOrdem(ordens, 'orders');
+displayOrdem(ordens, 'ordensBanco');
 displayOrdem(deletedOrdens, 'deleted');
