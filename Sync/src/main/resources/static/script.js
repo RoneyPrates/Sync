@@ -39,6 +39,7 @@ function displayOrdem(ordens, section) {
             <p><strong>Valor da Ordem:</strong> ${ordem.valorOrdem}</p>
             <p><strong>Status:</strong> ${ordem.status}</p>
             <p><strong>Observação:</strong> ${ordem.observacao}</p>
+            <p><strong>Usuário:</strong> ${ordem.nomeUsuario}</p>
             <div class="buttons">
                 ${section === 'ordensBanco' ?
                 (ordem.status === 'Pendente' ?
@@ -276,21 +277,56 @@ function abrirFiltros() {
 function aplicarFiltros() {
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value;
-    const user = document.getElementById('user').value;
+    const nomeUsuario = document.getElementById('nomeUsuario').value;
     const numeroOrdem = document.getElementById('numeroOrdem').value;
     const status = document.getElementById('status').value;
 
     const filteredOrders = ordens.filter(ordem => {
         return (!startDate || new Date(ordem.dataOrdem) >= new Date(startDate)) &&
             (!endDate || new Date(ordem.dataOrdem) <= new Date(endDate)) &&
-            (!user || ordem.usuario.includes(user)) &&
+            (!nomeUsuario || ordem.nomeUsuario && ordem.nomeUsuario.includes(nomeUsuario)) &&
             (!numeroOrdem || ordem.id.toString().includes(numeroOrdem)) &&
             (!status || ordem.status === status);
     });
     displayOrdens(filteredOrders);
     document.getElementById('formContainer').style.display = 'none';
 }
-
+async function buscarNomeFilial(id) {
+    try {
+        const response = await fetch(`/api/filial/${id}`);
+        if (!response.ok) {
+            throw new Error('Erro ao buscar o nome da filial');
+        }
+        const filial = await response.json();
+        const nomeFilial = filial.nome;
+        document.getElementById('nomeFilial').innerText = nomeFilial;
+    } catch (error) {
+        console.error('Erro:', error);
+        document.getElementById('nomeFilial').innerText = 'Erro ao carregar nome da filial.';
+    }
+}
+document.addEventListener('DOMContentLoaded', () => {
+    const id = 1;
+    buscarNomeFilial(id);
+});
+async function buscarNomeUsuario(id) {
+    try {
+        const response = await fetch(`/api/usuarios/${id}`);
+        if (!response.ok) {
+            throw new Error('Erro ao buscar o nome do Usuário');
+        }
+        const usuario = await response.json();
+        const nomeUsuario = usuario.nome;
+        document.getElementById('nomeUsuario').innerText = nomeUsuario;
+    } catch (error) {
+        console.error('Erro:', error);
+        document.getElementById('nomeUsuario').innerText = 'Erro ao carregar nome do Usuário.';
+    }
+}
+document.addEventListener('DOMContentLoaded', () => {
+    const id = 1;
+    buscarNomeUsuario(id);
+});
 
 
 

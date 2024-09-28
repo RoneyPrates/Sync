@@ -13,6 +13,16 @@ public class OrdemService {
 
     @Autowired
     private OrdemRepository ordemRepository;
+    @Autowired
+    private UsuariosService usuariosService;
+
+    public Ordem createOrdem(Ordem ordem, Integer usuarioId) {
+        String nomeUsuario = usuariosService.getNomeUsuarioById(usuarioId);
+        if (nomeUsuario != null) {
+            ordem.setNomeUsuario(nomeUsuario);
+        }
+        return ordemRepository.save(ordem);
+    }
 
     public List<Ordem> getAllOrdens() {
         return ordemRepository.findAll();

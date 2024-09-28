@@ -16,6 +16,7 @@ public class Ordem {
     private BigDecimal valorOrdem;
     private String status;
     private Byte anexo;
+    private String nomeUsuario;
 
     public String getStatus() {
         return status;
@@ -50,6 +51,7 @@ public class Ordem {
     public void setValorOrdem(BigDecimal valorOrdem) {
         this.valorOrdem = valorOrdem;
     }
+
     public String getObservacao() {
         return observacao;
     }
@@ -58,5 +60,10 @@ public class Ordem {
         this.observacao = observacao;
     }
     public Byte getAnexo() {return anexo;}
+
     public void setAnexo(Byte anexo) {this.anexo = anexo;}
+
+    public String getNomeUsuario() {return nomeUsuario;}
+
+    public void setNomeUsuario(String nomeUsuario) {this.nomeUsuario = nomeUsuario;}
 }

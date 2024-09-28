@@ -9,19 +9,17 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/usuarios")
+@RequestMapping("api/usuarios")
 public class UsuariosController {
 
     @Autowired
     private UsuariosService usuariosService;
 
-    // Listar todos os usuários
     @GetMapping
     public List<Usuarios> getAllUsuarios() {
         return usuariosService.getAllUsuarios();
     }
 
-    // Obter um usuário por ID
     @GetMapping("/{id}")
     public ResponseEntity<Usuarios> getUsuarioById(@PathVariable Integer id) {
         Usuarios usuario = usuariosService.getUsuarioById(id);
@@ -31,14 +29,11 @@ public class UsuariosController {
             return ResponseEntity.notFound().build();
         }
     }
-
-    // Criar um novo usuário
     @PostMapping
     public Usuarios createUsuario(@RequestBody Usuarios usuario) {
         return usuariosService.createUsuario(usuario);
     }
 
-    // Atualizar um usuário existente
     @PutMapping("/{id}")
     public ResponseEntity<Usuarios> updateUsuario(@PathVariable Integer id, @RequestBody Usuarios usuario) {
         Usuarios updatedUsuario = usuariosService.updateUsuario(id, usuario);
@@ -48,8 +43,6 @@ public class UsuariosController {
             return ResponseEntity.notFound().build();
         }
     }
-
-    // Deletar um usuário
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUsuario(@PathVariable Integer id) {
         if (usuariosService.deleteUsuario(id)) {

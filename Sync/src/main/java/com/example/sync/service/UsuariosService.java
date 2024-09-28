@@ -13,20 +13,17 @@ public class UsuariosService {
     @Autowired
     private UsuariosRepository usuariosRepository;
 
-    public Usuarios autenticar(String email, String senha) {
-        Usuarios usuario = usuariosRepository.findByEmail(email);
-        if (usuario != null && usuario.getSenha().equals(senha)) {
-            return usuario;
-        }
-        return null;
-    }
-
     public List<Usuarios> getAllUsuarios() {
         return usuariosRepository.findAll();
     }
 
     public Usuarios getUsuarioById(Integer id) {
         return usuariosRepository.findById(id).orElse(null);
+    }
+
+    public String getNomeUsuarioById(Integer id) {
+        Usuarios usuario = getUsuarioById(id);
+        return usuario != null ? usuario.getNome() : null; // Retorna o nome ou null
     }
 
     public Usuarios createUsuario(Usuarios usuario) {
@@ -41,6 +38,7 @@ public class UsuariosService {
             return null;
         }
     }
+
     public boolean deleteUsuario(Integer id) {
         if (usuariosRepository.existsById(id)) {
             usuariosRepository.deleteById(id);
@@ -50,4 +48,3 @@ public class UsuariosService {
         }
     }
 }
-
