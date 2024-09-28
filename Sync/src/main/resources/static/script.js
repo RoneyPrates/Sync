@@ -1,7 +1,10 @@
 const ordens = [];
 const deletedOrdens = [];
+const permissoes = [];
+const cadastroProdutos = [];
+const cadastroUsuarios = [];
+const cadastroFiliais = [];
 let currentEditingOrder = null;
-let currentFileOrder = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     fetchOrders();
@@ -105,7 +108,7 @@ async function createOrdem() {
         alert('Por favor, preencha a data.');
         return;
     }
-    const newOrdem = { dataOrdem: date, observacao, status: 'Pendente', valorOrdem: value };
+    const newOrdem = { dataOrdem: date, observacao, status: 'Pendente', valorOrdem: value, nomeUsuario: 'admin' };
     console.log('Enviando ordem:', newOrdem);
     const response = await fetch('/ordensdecompras', {
         method: 'POST',
@@ -235,40 +238,9 @@ async function deleteOrdem(id) {
         }
     }
 }
-function openFileUpload() {
-    const fileInput = document.getElementById('fileUpload');
-    fileInput.click();
-}
 async function finalizarOrdem(id) {
-    const ordem = ordens.find(ordem => ordem.id === id);
-    if (ordem) {
-        openFileUpload();
-        const fileInput = document.getElementById('fileUpload');
-        fileInput.onchange = async () => {
-            if (fileInput.files.length > 0) {
-                const file = fileInput.files[0];
-                const validExtensions = ['.pdf', '.png', '.jpg', '.jpeg'];
-                const fileExtension = file.name.slice(((file.name.lastIndexOf(".") - 1) >>> 0) + 2).toLowerCase();
-                if (validExtensions.includes(`.${fileExtension}`)) {
-                    const response = await fetch(`/ordensdecompras/${id}/finalizar`, {
-                        method: 'PATCH',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ status: 'Finalizada' })
-                    });
-                    if (!response.ok) {
-                        throw new Error('Erro ao atualizar a ordem no servidor');
-                    }
-                    ordem.status = 'Finalizada';
-                    alert('Ordem finalizada com sucesso!');
-                    location.reload();
-                } else {
-                    alert('Você deve adicionar um arquivo PDF, PNG ou JPG válido.');
-                }
-            }
-        };
-    }
+    window.open("https://cadastro.emissornfe.sebrae.com.br/", "_blank");
+    fileInput.click();
 }
 function abrirFiltros() {
     document.querySelector(".abrirFiltros").textContent = "Filtros";
@@ -370,14 +342,10 @@ function openNav() {
 function showSection(section) {
     document.getElementById('ordensBanco').style.display = section === 'ordensBanco' ? 'flex' : 'none';
     document.getElementById('deleted').style.display = section === 'deleted' ? 'flex' : 'none';
-    document.getElementById('permissions').style.display = section === 'permissions' ? 'flex' : 'none';
+    document.getElementById('permissoes').style.display = section === 'permissoes' ? 'flex' : 'none';
     document.getElementById('cadastroProdutos').style.display = section === 'cadastroProdutos' ? 'flex' : 'none';
     document.getElementById('cadastroUsuarios').style.display = section === 'cadastroUsuarios' ? 'flex' : 'none';
-}
-function showPermissions() {
-    document.getElementById('permissions').style.display = 'flex';
-    document.getElementById('ordensBanco').style.display = 'none';
-    document.getElementById('deleted').style.display = 'none';
+    document.getElementById('cadastroFiliais').style.display = section === 'cadastroFiliais' ? 'flex' : 'none';
 }
 function logout() {
     window.location.href = "http://localhost:8080/login";
@@ -385,3 +353,7 @@ function logout() {
 
 displayOrdem(ordens, 'ordensBanco');
 displayOrdem(deletedOrdens, 'deleted');
+displayOrdem(permissoes,'permissoes');
+displayOrdem(cadastroProdutos,'cadastroProdutos');
+displayOrdem(cadastroUsuarios, 'cadastroUsuarios');
+displayOrdem(cadastroFiliais,'cadastroFiliais');
