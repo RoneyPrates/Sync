@@ -7,12 +7,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class LoginService {
-
     @Autowired
-    private UsuariosRepository usuariosRepository;
+    private UsuariosRepository usuarioRepository;
 
-public boolean autenticar(String email, String senha) {
-    Usuarios usuarioEncontrado = usuariosRepository.findByEmail(email);
-    return usuarioEncontrado != null && usuarioEncontrado.getSenha().equals(senha);
-}
+    public boolean autenticar(String email, String senha) {
+        Usuarios usuarioEncontrado = usuarioRepository.findByEmail(email);
+        return usuarioEncontrado != null && usuarioEncontrado.getSenha().equals(senha);
+    }
 }
