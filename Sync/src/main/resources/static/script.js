@@ -35,67 +35,66 @@ function displayOrdem(ordens, section) {
     ordens.forEach(ordem => {
         const ordemItem = document.createElement('div');
         ordemItem.className = 'ordem-item';
-        ordemItem.style.backgroundColor = getStatusColor(ordem.status);
+        ordemItem.style.backgroundColor = 'white';
+        ordemItem.style.color = 'black'
+        const statusColor = getStatusColor(ordem.status);
+        ordemItem.style.border = `5px solid ${statusColor}`;
         ordemItem.innerHTML = `
             <p><strong>Número da Ordem:</strong> ${ordem.id}</p>
             <p><strong>Data da Ordem:</strong> ${ordem.dataOrdem}</p>
             <p><strong>Valor da Ordem:</strong> ${ordem.valorOrdem}</p>
-            <p><strong>Status:</strong> ${ordem.status}</p>
+            <p><strong>Status:</strong> <span style="color: ${statusColor};">${ordem.status}</span></p>
             <p><strong>Observação:</strong> ${ordem.observacao}</p>
             <p><strong>Usuário:</strong> ${ordem.nomeUsuario}</p>
             <div class="buttons">
                 ${section === 'ordensBanco' ?
-                (ordem.status === 'Pendente' ?
-                    `<button class="btn-edit" onclick="editOrdem(${ordem.id})"><img src="editar.png" alt="Editar"></button>
-                    <button class="btn-approve" onclick="approveOrdem(${ordem.id})"><img src="aprovada.png" alt="Aprovar"></button>
-                    <button class="btn-reject" onclick="rejectOrdem(${ordem.id})"><img src="reprovada.png" alt="Reprovar"></button>
-                    <button class="btn-produto" onclick="abrirProdutos(${ordem.id})"><img src="visualizar.png" alt="Visualizar Produtos"></button>                    
-                    <button class="btn-delete" onclick="deleteOrdem(${ordem.id})"><img src="lixeira.png" alt="Excluir"></button>` : '') :
-                ''
-            }
+            (ordem.status === 'Pendente' ?
+                `<button class="btn-edit" onclick="editOrdem(${ordem.id})"><img src="editar.png" alt="Editar"></button>
+                        <button class="btn-approve" onclick="approveOrdem(${ordem.id})"><img src="aprovada.png" alt="Aprovar"></button>
+                        <button class="btn-reject" onclick="rejectOrdem(${ordem.id})"><img src="reprovada.png" alt="Reprovar"></button>
+                        <button class="btn-produto" onclick="abrirProdutos(${ordem.id})"><img src="visualizar.png" alt="Visualizar Produtos"></button>
+                        <button class="btn-delete" onclick="deleteOrdem(${ordem.id})"><img src="lixeira.png" alt="Excluir"></button>` : '') : ''
+        }
                 ${section === 'ordensBanco' ?
-                (ordem.status === 'Aprovada' ?
-                    `<button class="btn-reject" onclick="rejectOrdem(${ordem.id})"><img src="reprovada.png" alt="Reprovar"></button>
-                    <button class="btn-delete" onclick="deleteOrdem(${ordem.id})"><img src="lixeira.png" alt="Excluir"></button>
-                    <button class="btn-produto" onclick="abrirProdutos(${ordem.id})"><img src="visualizar.png" alt="Visualizar Produtos"></button>                                        
-                    <button class="btn-finalizar" onclick="finalizarOrdem(${ordem.id})"><img src="finalizado.png" alt="Finalizar"></button>` : '') :
-                ''
-            }
+            (ordem.status === 'Aprovada' ?
+                `<button class="btn-reject" onclick="rejectOrdem(${ordem.id})"><img src="reprovada.png" alt="Reprovar"></button>
+                        <button class="btn-delete" onclick="deleteOrdem(${ordem.id})"><img src="lixeira.png" alt="Excluir"></button>
+                        <button class="btn-produto" onclick="abrirProdutos(${ordem.id})"><img src="visualizar.png" alt="Visualizar Produtos"></button>
+                        <button class="btn-finalizar" onclick="finalizarOrdem(${ordem.id})"><img src="finalizado.png" alt="Finalizar"></button>` : '') : ''
+        }
                 ${section === 'ordensBanco' ?
-                (ordem.status === 'Reprovada' ?
-                    `<button class="btn-edit" onclick="editOrdem(${ordem.id})"><img src="editar.png" alt="Editar"></button>
-                    <button class="btn-approve" onclick="approveOrdem(${ordem.id})"><img src="aprovada.png" alt="Aprovar"></button>
-                    <button class="btn-produto" onclick="abrirProdutos(${ordem.id})"><img src="visualizar.png" alt="Visualizar Produtos"></button>                    
-                    <button class="btn-delete" onclick="deleteOrdem(${ordem.id})"><img src="lixeira.png" alt="Excluir"></button>` : '') :
-                ''
-            } 
-                 ${section === 'ordensBanco' ?
-                (ordem.status === 'Finalizada' ?
-                    `<button class="btn-produto" onclick="abrirProdutos(${ordem.id})"><img src="visualizar.png" alt="Visualizar Produtos"></button>                    
-                    <button class="btn-invoice" onclick="abrirNotaFiscal('${ordem.id}')"><img src="notafiscal.png" alt="Nota Fiscal"></button>` : '') :
-                ''
-            }                          
+            (ordem.status === 'Reprovada' ?
+                `<button class="btn-edit" onclick="editOrdem(${ordem.id})"><img src="editar.png" alt="Editar"></button>
+                        <button class="btn-approve" onclick="approveOrdem(${ordem.id})"><img src="aprovada.png" alt="Aprovar"></button>
+                        <button class="btn-produto" onclick="abrirProdutos(${ordem.id})"><img src="visualizar.png" alt="Visualizar Produtos"></button>
+                        <button class="btn-delete" onclick="deleteOrdem(${ordem.id})"><img src="lixeira.png" alt="Excluir"></button>` : '') : ''
+        } 
+                ${section === 'ordensBanco' ?
+            (ordem.status === 'Finalizada' ?
+                `<button class="btn-produto" onclick="abrirProdutos(${ordem.id})"><img src="visualizar.png" alt="Visualizar Produtos"></button>
+                        <button class="btn-invoice" onclick="abrirNotaFiscal('${ordem.id}')"><img src="notafiscal.png" alt="Nota Fiscal"></button>` : '') : ''
+        }                          
             </div>
         `;
-            ordemGrid.appendChild(ordemItem);
-        });
+        ordemGrid.appendChild(ordemItem);
+    });
+}
+function getStatusColor(status) {
+    switch (status) {
+        case 'Pendente':
+            return '#FFD700';
+        case 'Aprovada':
+            return 'green';
+        case 'Reprovada':
+            return 'red';
+        case 'Deletada':
+            return 'lightgray';
+        case 'Finalizada':
+            return 'blue';
+        default:
+            return 'white';
     }
-    function getStatusColor(status) {
-        switch (status) {
-            case 'Pendente':
-                return '#FFD700';
-            case 'Aprovada':
-                return 'green';
-            case 'Reprovada':
-                return 'red';
-            case 'Deletada':
-                return 'lightgray';
-            case 'Finalizada':
-                return 'blue'
-            default:
-                return 'white';
-        }
-    }
+}
 async function createOrdem() {
     const date = document.getElementById('createDate').value;
     const observacao = document.getElementById('createObservacao').value;
@@ -303,33 +302,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-
-
-
-
-
-async function abrirNotaFiscal(ordemId) {
-    try {
-        const response = await fetch(`/abrirNotaFiscal?id=${ordemId}`, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/octet-stream'
-            }
-        });
-        if (!response.ok) {
-            throw new Error('Erro ao buscar nota fiscal');
-        }
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        window.open(url, '_blank');
-        setTimeout(() => {
-            window.URL.revokeObjectURL(url);
-        }, 100);
-
-    } catch (error) {
-        alert(error.message);
-    }
-}
 
 
 
