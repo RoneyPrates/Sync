@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Filiais</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        #filialInput {
+            margin-bottom: 10px;
+        }
+        .filial-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin-bottom: 5px;
+        }
+        .btn-remove {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Cadastro de Filiais</h1>
+<input type="text" id="filialInput" placeholder="Nome da filial">
+<button id="addButton">Adicionar Filial</button>
+
+<div id="filialList"></div>
+
+<script>
+    const filialInput = document.getElementById('filialInput');
+    const filialList = document.getElementById('filialList');
+    const addButton = document.getElementById('addButton');
+    const filiais = [];
+
+    addButton.addEventListener('click', () => {
+        const filialNome = filialInput.value.trim();
+        if (filialNome) {
+            filiais.push(filialNome); // Adiciona a filial ao array
+            renderizarFiliais(); // Atualiza a lista
+            filialInput.value = ''; // Limpa o campo de entrada
+        } else {
+            alert('Por favor, insira um nome de filial.');
+        }
+    });
+
+    function renderizarFiliais() {
+        filialList.innerHTML = ''; // Limpa a lista antes de renderizar
+        filiais.forEach((filial, index) => {
+            const filialItem = document.createElement('div');
+            filialItem.className = 'filial-item';
+            filialItem.innerHTML = `
+                    <span>${filial}</span>
+                    <button class="btn-remove" onclick="removerFilial(${index})">Remover</button>
+                `;
+            filialList.appendChild(filialItem);
+        });
+    }
+
+    function removerFilial(index) {
+        filiais.splice(index, 1); // Remove a filial do array
+        renderizarFiliais(); // Atualiza a lista
+    }
+</script>
+
+</body>
+</html>

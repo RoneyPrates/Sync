@@ -30,4 +30,18 @@ public class ConexaoController {
         model.addAttribute("erro", "Usuário ou senha inválidos");
         return "login";
     }
+    @GetMapping("/permissoes")
+    public String showPermissoesPage() {return  "permissoes";}
+    @GetMapping("/cadastroProdutos")
+    public String showCadastroProdutos() {
+        return "cadastroProdutos";
+    }
+    @GetMapping("/cadastroUsuarios")
+    public String showCadastroUsuarios() {
+        return "cadastroUsuarios";
+    }
+    @GetMapping("/cadastroFiliais")
+    public String showCadastroFiliais() {
+        return "cadastroFiliais";
+    }
 }

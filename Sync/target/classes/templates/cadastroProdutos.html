@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Produtos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        #produtoInput {
+            margin-bottom: 10px;
+        }
+        .produto-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin-bottom: 5px;
+        }
+        .btn-remove {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Lista de Produtos</h1>
+<input type="text" id="produtoInput" placeholder="Adicione um produto">
+<button id="addButton">Adicionar Produto</button>
+
+<div id="produtoList"></div>
+
+<script>
+    const produtoInput = document.getElementById('produtoInput');
+    const produtoList = document.getElementById('produtoList');
+    const addButton = document.getElementById('addButton');
+
+    addButton.addEventListener('click', () => {
+        const produtoNome = produtoInput.value.trim();
+        if (produtoNome) {
+            const produtoItem = document.createElement('div');
+            produtoItem.className = 'produto-item';
+            produtoItem.innerHTML = `
+                    <span>${produtoNome}</span>
+                    <button class="btn-remove">Remover</button>
+                `;
+            produtoList.appendChild(produtoItem);
+            produtoInput.value = '';
+
+            const removeButton = produtoItem.querySelector('.btn-remove');
+            removeButton.addEventListener('click', () => {
+                produtoList.removeChild(produtoItem);
+            });
+        } else {
+            alert('Por favor, insira um nome de produto.');
+        }
+    });
+</script>
+
+</body>
+</html>

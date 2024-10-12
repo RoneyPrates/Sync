@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Usuários</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        #usuarioInput {
+            margin-bottom: 10px;
+        }
+        .usuario-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin-bottom: 5px;
+        }
+        .btn-remove {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Cadastro de Usuários</h1>
+<input type="text" id="usuarioInput" placeholder="Nome do usuário">
+<button id="addButton">Adicionar Usuário</button>
+
+<div id="usuarioList"></div>
+
+<script>
+    const usuarioInput = document.getElementById('usuarioInput');
+    const usuarioList = document.getElementById('usuarioList');
+    const addButton = document.getElementById('addButton');
+    const usuarios = [];
+
+    addButton.addEventListener('click', () => {
+        const usuarioNome = usuarioInput.value.trim();
+        if (usuarioNome) {
+            usuarios.push(usuarioNome); // Adiciona o usuário ao array
+            renderizarUsuarios(); // Atualiza a lista
+            usuarioInput.value = ''; // Limpa o campo de entrada
+        } else {
+            alert('Por favor, insira um nome de usuário.');
+        }
+    });
+
+    function renderizarUsuarios() {
+        usuarioList.innerHTML = ''; // Limpa a lista antes de renderizar
+        usuarios.forEach((usuario, index) => {
+            const usuarioItem = document.createElement('div');
+            usuarioItem.className = 'usuario-item';
+            usuarioItem.innerHTML = `
+                    <span>${usuario}</span>
+                    <button class="btn-remove" onclick="removerUsuario(${index})">Remover</button>
+                `;
+            usuarioList.appendChild(usuarioItem);
+        });
+    }
+
+    function removerUsuario(index) {
+        usuarios.splice(index, 1); // Remove o usuário do array
+        renderizarUsuarios(); // Atualiza a lista
+    }
+</script>
+
+</body>
+</html>

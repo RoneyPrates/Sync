@@ -1,9 +1,5 @@
 const ordens = [];
 const deletedOrdens = [];
-const permissoes = [];
-const cadastroProdutos = [];
-const cadastroUsuarios = [];
-const cadastroFiliais = [];
 let currentEditingOrder = null;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -238,8 +234,28 @@ async function deleteOrdem(id) {
     }
 }
 async function finalizarOrdem(id) {
-    window.open("https://cadastro.emissornfe.sebrae.com.br/", "_blank");
-    fileInput.click();
+    const ordem = ordens.find(ordem => ordem.id === id);
+    if (ordem) {
+        const response = await fetch(`/ordensdecompras/${id}/finalizar`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status: 'Finalizada' })
+        });
+        if (!response.ok) {
+            throw new Error('Sem resposta do servidor');
+        }
+        ordem.status = 'Finalizada';
+        alert('Ordem finalizada com sucesso!');
+        location.reload();
+        window.open("https://cadastro.emissornfe.sebrae.com.br/", "_blank");
+        fileInput.click();
+    }
+}
+function abrirNotaFiscal() {
+        window.open("https://cadastro.emissornfe.sebrae.com.br/", "_blank");
+        fileInput.click();
 }
 function abrirFiltros() {
     document.querySelector(".abrirFiltros").textContent = "Filtros";
@@ -314,18 +330,22 @@ function openNav() {
 function showSection(section) {
     document.getElementById('ordensBanco').style.display = section === 'ordensBanco' ? 'flex' : 'none';
     document.getElementById('deleted').style.display = section === 'deleted' ? 'flex' : 'none';
-    document.getElementById('permissoes').style.display = section === 'permissoes' ? 'flex' : 'none';
-    document.getElementById('cadastroProdutos').style.display = section === 'cadastroProdutos' ? 'flex' : 'none';
-    document.getElementById('cadastroUsuarios').style.display = section === 'cadastroUsuarios' ? 'flex' : 'none';
-    document.getElementById('cadastroFiliais').style.display = section === 'cadastroFiliais' ? 'flex' : 'none';
 }
 function logout() {
     window.location.href = "http://localhost:8080/login";
 }
+function permissoes(){
+    window.location.href = "http://localhost:8080/permissoes";
+}
+function cadastroProdutos(){
+    window.location.href = "http://localhost:8080/cadastroProdutos";
+}
+function cadastroUsuarios(){
+    window.location.href = "http://localhost:8080/cadastroUsuarios";
+}
+function cadastroFiliais(){
+    window.location.href = "http://localhost:8080/cadastroFiliais";
+}
 
 displayOrdem(ordens, 'ordensBanco');
 displayOrdem(deletedOrdens, 'deleted');
-displayOrdem(permissoes,'permissoes');
-displayOrdem(cadastroProdutos,'cadastroProdutos');
-displayOrdem(cadastroUsuarios, 'cadastroUsuarios');
-displayOrdem(cadastroFiliais,'cadastroFiliais');
