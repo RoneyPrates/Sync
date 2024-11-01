@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário de Acesso</title>
+    <style>
+        body {
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background-color: #022124;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+
+        .logo img {
+            max-width: 400px;
+            height: auto;
+            display: block;
+        }
+
+        .container {
+            background-color: #022124;
+            color: #dddddd;
+            padding: 30px;
+            border-radius: 8px;
+            width: 400px;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #33E2EE;
+            border: none;
+            color: #fff;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+        .particle {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background-color: #33E2EE;
+            border-radius: 50%;
+            animation: float 12s infinite ease-in-out;
+            z-index: -1;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0); opacity: 0.5; }
+            50% { transform: translateY(-100px); opacity: 1; }
+            100% { transform: translateY(0); opacity: 0.5; }
+        }
+
+    </style>
+</head>
+<body>
+<div class="logo">
+    <img src="/logo.png" alt="Logo da Empresa">
+</div>
+<div class="container">
+    <form action="/login" method="post">
+        <div class="form-group">
+            <label for="email">LOGIN</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+            <label for="password">SENHA</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <button type="submit">ENTRAR</button>
+        <div>
+            <span th:text="${erro}"></span>
+        </div>
+    </form>
+</div>
+<script>
+    function createParticles() {
+        for (let i = 0; i < 100; i++) {
+            let particle = document.createElement('div');
+            particle.style.left = `${Math.random() * 100}vw`;
+            particle.style.top = `${Math.random() * 100}vh`;
+            particle.style.animationDuration = `${Math.random() * 10 + 3}s`;
+            particle.style.animationDelay = `${Math.random() * 5}s`;
+            document.body.appendChild(particle);
+        }
+    }
+    window.onload = createParticles;
+</script>
+</body>
+</html>

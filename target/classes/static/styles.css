@@ -1,0 +1,365 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #022124;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #084347;
+    padding: 15px 20px;
+    color: #dddddd;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.logo {
+    flex: 1;
+}
+.nomeFilial {
+    flex: 2;
+    text-align: center;
+    font-weight: bold;
+}
+.nomeUsuario {
+    flex: 1;
+    text-align: right;
+    font-weight: bold;
+}
+.logo img {
+    max-height: 50px;
+}
+.container {
+    flex: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+h1 {
+    text-align: center;
+    color: #dddddd;
+}
+.ordem-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+.ordem-item {
+    width: 250px;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    text-align: center;
+    position: relative;
+}
+.ordem-item h2 {
+    font-size: 18px;
+    margin: 0;
+}
+.ordem-item p {
+    font-size: 14px;
+    margin: 5px 0;
+}
+.buttons {
+    margin-top: auto;
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+}
+.buttons button {
+    width: 35px;
+    height: 35px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background: none;
+}
+.buttons button img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.modal-content {
+    background: #0e6b6b;
+    padding: 25px;
+    border-radius: 12px;
+    width: 350px;
+    max-width: 90%;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    color: #f0f0f0;
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+.modal-content h2 {
+    margin-top: 0;
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffffff;
+}
+.modal-content label {
+    display: block;
+    margin: 15px 0 5px;
+    font-weight: bold;
+}
+.modal-content input {
+    width: 94%;
+    height: 30px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    background-color: #e0f7fa;
+    color: #084347;
+}
+.modal-content textarea {
+    width: 94%;
+    height: 60px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    background-color: #e0f7fa;
+    color: #084347;
+    resize: none;
+}
+.modal-content input.inputData {
+    padding: 2px;
+}
+.modal-content input.inputObs {
+    padding-bottom: 40px;
+    margin-bottom: 20px;
+}
+.modal-content button {
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 12px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    width: calc(50% - 10px);
+}
+.modal-content button.criar {
+    background-color: #007bff;
+}
+.modal-content button.cancel {
+    background-color: #a50919;
+}
+.modal-content button.salvar {
+    background-color: #008e04;
+}
+.modal-content button.adProduto {
+    background-color: #cca508;
+}
+.modal-content button {
+     margin: 10px 0;
+ }
+#createModal{
+    display:none;
+}
+#editModal{
+    display: none;
+}
+.menu {
+    height: auto;
+    width: 250px;
+    position: absolute;
+    top: 140px;
+    left: -250px;
+    background-color: #084347;
+    color: #dddddd;
+    overflow-x: hidden;
+    transition: 0.3s;
+    z-index: 1000;
+    padding-top: 60px;
+}
+.menu a {
+    padding: 15px 25px;
+    text-decoration: none;
+    font-size: 18px;
+    color: #dddddd;
+    display: block;
+    transition: 0.3s;
+}
+.menu .closebtn {
+    position: absolute;
+    top: 0px;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
+}
+.openbtn {
+    font-size: 20px;
+    cursor: pointer;
+    background-color: #084347;
+    color: #dddddd;
+    border: 2px solid black;
+    border-radius: 4px;
+    padding: 10px 15px;
+    position: fixed;
+    top: 140px;
+    left: 20px;
+    z-index: 1001;
+}
+.menu.open {
+    left: 0;
+}
+
+.btn-create {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #dddddd;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s;
+    z-index: 1001;
+    background-image: url('novo.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+@media (max-width: 600px) {
+    .buttons {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    .buttons button {
+        width: 50px;
+        height: 50px;
+    }
+}
+.status {
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+.modal-file-content {
+    background: #dddddd;
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px;
+    max-width: 90%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+.modal-file-content label {
+    display: block;
+    margin-bottom: 8px;
+}
+.modal-file-content input[type="file"] {
+    width: 100%;
+    margin-bottom: 12px;
+}
+.modal-file-content button {
+    background-color: #084347;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-right: 10px;
+}
+.form-container {
+    height:30%;
+    width: 60%;
+    position: absolute;
+    top: 140px;
+    right: 0;
+    background-color: #084347;
+    color: #dddddd;
+    transition: 0.3s;
+    padding: 20px;
+    box-sizing: border-box;
+    display: none;
+}
+
+.form-group {
+    display: inline-block;
+    margin-bottom: 10px;
+    align-items: center;
+}
+
+.form-group label {
+    margin-right: 10px;
+}
+
+.form-group input {
+    padding: 5px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.abrirFiltros {
+    font-size: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+    background-color: #084347;
+    color: #dddddd;
+    border: 2px solid black;
+    padding: 10px 15px;
+    position: fixed;
+    top: 140px;
+    right: 20px;
+    z-index: 1001;
+}
+.btAplicarFiltros {
+    font-size: 20px;
+    cursor: pointer;
+    background-color: #084347;
+    color: #dddddd;
+    border: 2px solid black;
+    border-radius: 4px;
+    padding: 10px 15px;
+    position: fixed;
+    top: 300px;
+    right: 20px;
+    z-index: 1001;
+}
+.btAplicarFiltros:hover {
+    background-color: #0056b3;
+}
+.save-button {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background-color: #084347;
+    color: #dddddd;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+.save-button:hover {
+    background-color: #084347;
+}
