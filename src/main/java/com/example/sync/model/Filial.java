@@ -1,31 +1,31 @@
 package com.example.sync.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "filiais")
 public class Filial {
     @Id
-    private int id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String nome;
     private String cnpj;
     private String cidade;
     private String estado;
+    private Boolean ativo;
 
     public Filial() {}
-    public Filial(int id, String nome, String cnpj, String cidade, String estado) {
-        this.id = id;
+
+    public Filial(String nome, String cnpj, String cidade, String estado) {
         this.nome = nome;
         this.cnpj = cnpj;
         this.cidade = cidade;
         this.estado = estado;
     }
-    public int getId() {
+    public Long getId() {
         return id;
     }
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
     public String getNome() {
@@ -52,5 +52,10 @@ public class Filial {
     public void setEstado(String estado) {
         this.estado = estado;
     }
+    public Boolean getAtivo() {
+        return ativo;
+    }
+    public void setAtivo(Boolean ativo) {
+        this.ativo = ativo;
+    }
 }
-

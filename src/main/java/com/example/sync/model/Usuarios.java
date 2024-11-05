@@ -6,17 +6,16 @@ import java.util.List;
 @Entity
 @Table(name = "usuarios")
 public class Usuarios {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     private String nome;
     private String email;
     private String senha;
 
     @ManyToOne
-    @JoinColumn(name = "idtipousuario")
+    @JoinColumn(name = "idtipousuario", nullable = false)
     private TipoUsuarios tipoUsuario;
 
     @ManyToOne
@@ -30,11 +29,12 @@ public class Usuarios {
 
     private Boolean ativo;
 
-    public Integer getId() {
+    // Getters e setters
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -77,15 +77,19 @@ public class Usuarios {
     public void setFilial(Filial filial) {
         this.filial = filial;
     }
+
     public List<String> getPermissoes() {
         return permissoes;
     }
+
     public void setPermissoes(List<String> permissoes) {
         this.permissoes = permissoes;
     }
+
     public Boolean getAtivo() {
         return ativo;
     }
+
     public void setAtivo(Boolean ativo) {
         this.ativo = ativo;
     }

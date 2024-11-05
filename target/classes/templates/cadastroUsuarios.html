@@ -104,6 +104,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            width: 100%;
+            color: #dddddd;
         }
         .btn-remove,
         .btn-editar {
@@ -136,8 +138,11 @@
             margin-right: 10px;
         }
         #usuarioList {
-            margin-top: 20px;
+            margin: 20px 10px;
             color: #dddddd;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
         }
         .modal {
             display: none;
@@ -145,7 +150,7 @@
             z-index: 1;
             left:50%;
             top: 50%;
-            width: 90%;
+            width: 95%;
             height: 70%;
             transform: translate(-50%, -50%);
             overflow: auto;
@@ -198,6 +203,43 @@
             color: white;
             margin-left: 4%;
         }
+        .button-group {
+            display: flex;
+            gap: 0;
+            margin-left: auto;
+        }
+        .permissoes-container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .permissoes-aba {
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .permissoes-aba h3 {
+            margin: 0 0 10px;
+            color: #dddddd;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .linha{
+            height: 2px;
+            background-color: white;
+            margin: 10px 0;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -230,20 +272,50 @@
     </select>
 </div>
 
-<div class="checkbox-group">
-    <label>Permissões:</label>
-    <label><input type="checkbox" value="editarOrdens"> Editar Ordens</label>
-    <label><input type="checkbox" value="excluirOrdens"> Excluir Ordens</label>
-    <label><input type="checkbox" value="cadastrarOrdens"> Cadastrar Ordens</label>
-    <label><input type="checkbox" value="cadastrarProdutos"> Cadastrar Produtos</label>
-    <label><input type="checkbox" value="cadastrarUsuarios"> Cadastrar Usuários</label>
-    <label><input type="checkbox" value="cadastrarFiliais"> Cadastrar Filiais</label>
-    <label><input type="checkbox" value="aprovarReprovarOrdens"> Aprovar/Reprovar Ordens</label>
-    <label><input type="checkbox" value="finalizarOrdens"> Finalizar Ordens</label>
+<div class="permissoes-container">
+    <div class="permissoes-aba">
+        <h3>Ordens</h3>
+        <div class="checkbox-group">
+            <label><input type="checkbox" value="editarOrdens"> Editar Ordens</label>
+            <label><input type="checkbox" value="excluirOrdens"> Excluir Ordens</label>
+            <label><input type="checkbox" value="cadastrarOrdens"> Cadastrar Ordens</label>
+            <label><input type="checkbox" value="aprovarReprovarOrdens"> Aprovar/Reprovar Ordens</label>
+            <label><input type="checkbox" value="finalizarOrdens"> Finalizar Ordens</label>
+            <label><input type="checkbox" value="verificarNotaFiscal"> Verificar Nota Fiscal</label>
+        </div>
+    </div>
+
+    <div class="permissoes-aba">
+        <h3>Produtos</h3>
+        <div class="checkbox-group">
+            <label><input type="checkbox" value="cadastrarProdutos"> Cadastrar Produtos</label>
+            <label><input type="checkbox" value="editarProdutos"> Editar Produtos</label>
+            <label><input type="checkbox" value="ativarInativarProdutos"> Ativar/Inativar Produtos</label>
+        </div>
+    </div>
+
+    <div class="permissoes-aba">
+        <h3>Usuários</h3>
+        <div class="checkbox-group">
+            <label><input type="checkbox" value="cadastrarUsuarios"> Cadastrar Usuários</label>
+            <label><input type="checkbox" value="editarUsuarios"> Editar Usuários</label>
+            <label><input type="checkbox" value="ativarInativarUsuarios"> Ativar/Inativar Usuários</label>
+        </div>
+    </div>
+
+    <div class="permissoes-aba">
+        <h3>Filiais</h3>
+        <div class="checkbox-group">
+            <label><input type="checkbox" value="cadastrarFiliais"> Cadastrar Filiais</label>
+            <label><input type="checkbox" value="editarFiliais"> Editar Filiais</label>
+            <label><input type="checkbox" value="ativarInativarFiliais"> Ativar/Inativar Filiais</label>
+        </div>
+    </div>
 </div>
 
 <button id="addButton">Adicionar Usuário</button>
-
+<div class="linha"></div>
+<h1>Usuários Cadastrados</h1>
 <div id="usuarioList"></div>
 
 <div id="userModal" class="modal">
@@ -260,17 +332,45 @@
 
         <label>Tipo Usuário:</label>
         <select id="modalTipoUsuario"></select>
+        <div class="permissoes-container">
+            <div class="permissoes-aba">
+                <h3>Ordens</h3>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" value="editarOrdens"> Editar Ordens</label>
+                    <label><input type="checkbox" value="excluirOrdens"> Excluir Ordens</label>
+                    <label><input type="checkbox" value="cadastrarOrdens"> Cadastrar Ordens</label>
+                    <label><input type="checkbox" value="aprovarReprovarOrdens"> Aprovar/Reprovar Ordens</label>
+                    <label><input type="checkbox" value="finalizarOrdens"> Finalizar Ordens</label>
+                    <label><input type="checkbox" value="verificarNotaFiscal"> Verificar Nota Fiscal</label>
+                </div>
+            </div>
 
-        <div class="checkbox-group">
-            <label>Permissões:</label>
-            <label><input type="checkbox" value="editarOrdens"> Editar Ordens</label>
-            <label><input type="checkbox" value="excluirOrdens"> Excluir Ordens</label>
-            <label><input type="checkbox" value="cadastrarOrdens"> Cadastrar Ordens</label>
-            <label><input type="checkbox" value="cadastrarProdutos"> Cadastrar Produtos</label>
-            <label><input type="checkbox" value="cadastrarUsuarios"> Cadastrar Usuários</label>
-            <label><input type="checkbox" value="cadastrarFiliais"> Cadastrar Filiais</label>
-            <label><input type="checkbox" value="aprovarReprovarOrdens"> Aprovar/Reprovar Ordens</label>
-            <label><input type="checkbox" value="finalizarOrdens"> Finalizar Ordens</label>
+            <div class="permissoes-aba">
+                <h3>Produtos</h3>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" value="cadastrarProdutos"> Cadastrar Produtos</label>
+                    <label><input type="checkbox" value="editarProdutos"> Editar Produtos</label>
+                    <label><input type="checkbox" value="ativarInativarProdutos"> Ativar/Inativar Produtos</label>
+                </div>
+            </div>
+
+            <div class="permissoes-aba">
+                <h3>Usuários</h3>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" value="cadastrarUsuarios"> Cadastrar Usuários</label>
+                    <label><input type="checkbox" value="editarUsuarios"> Editar Usuários</label>
+                    <label><input type="checkbox" value="ativarInativarUsuarios"> Ativar/Inativar Usuários</label>
+                </div>
+            </div>
+
+            <div class="permissoes-aba">
+                <h3>Filiais</h3>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" value="cadastrarFiliais"> Cadastrar Filiais</label>
+                    <label><input type="checkbox" value="editarFiliais"> Editar Filiais</label>
+                    <label><input type="checkbox" value="ativarInativarFiliais"> Ativar/Inativar Filiais</label>
+                </div>
+            </div>
         </div>
         <div class="button-container">
             <button id="saveButton">Salvar Alterações</button>
@@ -282,23 +382,19 @@
 <script>
     const nomeInput = document.getElementById('nomeInput');
     const emailInput = document.getElementById('emailInput');
+    const senhaInput = document.getElementById('senhaInput');
     const tipoUsuarioSelect = document.getElementById('tipoUsuario');
     const usuarioList = document.getElementById('usuarioList');
     const addButton = document.getElementById('addButton');
     const userModal = document.getElementById('userModal');
     const modalNomeInput = document.getElementById('modalNomeInput');
     const modalEmailInput = document.getElementById('modalEmailInput');
+    const modalSenhaInput = document.getElementById('modalSenhaInput');
     const modalNomeFilial = document.getElementById('modalNomeFilial');
     const modalTipoUsuario = document.getElementById('modalTipoUsuario');
     const saveButton = document.getElementById('saveButton');
     let usuarios = [];
     let usuarioEditando = null;
-
-    document.addEventListener('DOMContentLoaded', () => {
-        listarUsuarios();
-        carregarFiliais();
-        carregarTiposUsuario();
-    });
 
     async function carregarFiliais() {
         try {
@@ -307,7 +403,6 @@
                 throw new Error('Erro ao buscar as filiais');
             }
             const filiais = await response.json();
-            console.log('Filiais carregadas:', filiais);
 
             const filialSelect = document.getElementById('nomeFilial');
             filialSelect.innerHTML = '';
@@ -317,13 +412,14 @@
             filialSelect.appendChild(optionDefault);
 
             filiais.forEach(filial => {
-                const option = document.createElement('option');
-                option.value = filial.id;
-                option.textContent = filial.nome;
-                filialSelect.appendChild(option);
+                if (filial.ativo) {
+                    const option = document.createElement('option');
+                    option.value = filial.id;
+                    option.textContent = filial.nome;
+                    filialSelect.appendChild(option);
+                }
             });
         } catch (error) {
-            console.error('Erro:', error);
             alert('Erro ao carregar as filiais.');
         }
     }
@@ -334,12 +430,14 @@
             if (!response.ok) {
                 throw new Error('Erro ao buscar os tipos de usuário');
             }
+
             const tiposUsuario = await response.json();
-            console.log('Tipos de usuário carregados:', tiposUsuario);
+
+            const tipoUsuarioSelect = document.getElementById('tipoUsuario');
             tipoUsuarioSelect.innerHTML = '';
             const optionDefault = document.createElement('option');
             optionDefault.value = '';
-            optionDefault.textContent = 'Selecione o tipo';
+            optionDefault.textContent = 'Selecione o tipo do Usuário';
             tipoUsuarioSelect.appendChild(optionDefault);
 
             tiposUsuario.forEach(tipo => {
@@ -349,10 +447,33 @@
                 tipoUsuarioSelect.appendChild(option);
             });
         } catch (error) {
-            console.error('Erro:', error);
             alert('Erro ao carregar os tipos de usuário.');
         }
     }
+    document.addEventListener('DOMContentLoaded', () => {
+        listarUsuarios();
+        carregarFiliais();
+        carregarTiposUsuario();
+    });
+
+    tipoUsuarioSelect.addEventListener('change', () => {
+        const idTipoUsuario = tipoUsuarioSelect.value;
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+
+        checkboxes.forEach(checkbox => checkbox.checked = false);
+
+        if (idTipoUsuario === "1") {
+            checkboxes.forEach(checkbox => checkbox.checked = true);
+        } else if (idTipoUsuario === "2") {
+            const permissoesUser = ['cadastrarOrdens'];
+            permissoesUser.forEach(perm => {
+                const checkbox = document.querySelector(`input[value="${perm}"]`);
+                if (checkbox) {
+                    checkbox.checked = true;
+                }
+            });
+        }
+    });
 
     function listarUsuarios() {
         fetch('/api/usuarios')
@@ -366,66 +487,91 @@
 
     function adicionarUsuarioNaLista(usuario) {
         const usuarioItem = document.createElement('div');
-        usuarioItem.style.margin = '10px';
         usuarioItem.className = 'usuario-item';
+
         usuarioItem.innerHTML = `
-        <span>Nome: ${usuario.nome} | Email: ${usuario.email} | Filial: ${usuario.filial} <br>Permissões: ${usuario.permissoes.join(' | ')}</span>
-        <button class="btn-editar" onclick="editarUsuario(${usuario.id})">Editar</button>
-        <button class="btn-remove" onclick="removerUsuario(${usuarios.indexOf(usuario)})">Remover</button>
+        <span style="color: ${usuario.ativo ? 'white' : 'gray'};">
+            Nome: ${usuario.nome} | Email: ${usuario.email} | Filial: ${usuario.filial.nome}
+            <br>Permissões: ${usuario.permissoes.join(', ')}
+            | Status: ${usuario.ativo ? 'Ativo' : 'Inativo'}
+        </span>
+        <div class="button-group">
+            <button class="btn-editar" onclick="editarUsuario(${usuario.id})">Editar</button>
+            <button class="btn-remove" onclick="inativarUsuario(${usuario.id})">
+                ${usuario.ativo ? 'Inativar' : 'Ativar'}
+            </button>
+        </div>
     `;
         usuarioList.appendChild(usuarioItem);
     }
-
-    addButton.addEventListener('click', async () => {
-        const idTipoUsuario = tipoUsuarioSelect.value;
-        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-        checkboxes.forEach(checkbox => checkbox.checked = false);
-
-        if (idTipoUsuario === "1") {
-            checkboxes.forEach(checkbox => checkbox.checked = true);
-        } else if (idTipoUsuario === "2") {
-            document.querySelector('input[value="cadastrarOrdens"]').checked = true;
-        }
-    });
-
     addButton.addEventListener('click', async () => {
         const nome = nomeInput.value.trim();
         const email = emailInput.value.trim();
-        const filial = document.getElementById('nomeFilial').value;
-        const permissoes = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(checkbox => checkbox.value);
+        const senha = senhaInput.value.trim();
+        const filialId = document.getElementById('nomeFilial').value;
+        const idTipoUsuario = document.getElementById('tipoUsuario').value;
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
 
-        if (nome && email && filial && tipoUsuarioSelect.value) {
-            const novoUsuario = { nome, email, filial, permissoes };
-            try {
-                const response = await fetch('/api/usuarios', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(novoUsuario),
-                });
-                if (!response.ok) {
-                    throw new Error('Erro ao adicionar usuário');
-                }
-                const usuarioAdicionado = await response.json();
-                usuarios.push(usuarioAdicionado);
-                renderizarUsuarios();
-                resetarCampos();
-            } catch (error) {
-                console.error('Erro:', error);
-                alert('Erro ao adicionar usuário.');
+        if (!nome || !email || !filialId || !idTipoUsuario) {
+            return alert('Por favor, preencha todos os campos.');
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return alert('Por favor, insira um email válido.');
+        }
+
+        const permissoes = Array.from(checkboxes)
+            .filter(checkbox => checkbox.checked)
+            .map(checkbox => checkbox.value);
+
+        const permissoesUnicas = [...new Set(permissoes)];
+
+        const novoUsuario = {
+            email,
+            nome,
+            senha,
+            tipoUsuario: { idTipoUsuario: idTipoUsuario },
+            filial: { id: filialId },
+            ativo: true,
+            autenticado: true,
+            permissoes: permissoesUnicas,
+        };
+
+        try {
+            const response = await fetch('/api/usuarios', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(novoUsuario),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Erro ao adicionar usuário');
             }
-        } else {
-            alert('Por favor, preencha todos os campos.');
+
+            const usuarioAdicionado = await response.json();
+            usuarios.push(usuarioAdicionado);
+            renderizarUsuarios();
+            resetarCampos();
+            alert('Usuário adicionado com sucesso!');
+        } catch (error) {
+            console.error('Erro:', error);
+            alert('Erro ao adicionar usuário: ' + error.message);
+        } finally {
+            addButton.disabled = false;
         }
     });
 
     function resetarCampos() {
         nomeInput.value = '';
         emailInput.value = '';
-        tipoUsuarioSelect.value = '';
-        tipoUsuarioSelect.dispatchEvent(new Event('change'));
-        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => checkbox.checked = false);
+        senhaInput.value = '';
+        document.getElementById('nomeFilial').value = '';
+        document.getElementById('tipoUsuario').value = '';
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(checkbox => checkbox.checked = false);
         usuarioEditando = null;
         addButton.style.display = 'block';
         saveButton.style.display = 'none';
@@ -441,11 +587,21 @@
     function editarUsuario(id) {
         usuarioEditando = usuarios.find(usuario => usuario.id === id);
         if (usuarioEditando) {
-            modalNomeInput.value = usuarioEditando.nome;
-            modalEmailInput.value = usuarioEditando.email;
-            modalNomeFilial.value = usuarioEditando.filialId;
-            modalTipoUsuario.value = usuarioEditando.tipoUsuario;
-
+            if (modalNomeInput) {
+                modalNomeInput.value = usuarioEditando.nome;
+            }
+            if (modalEmailInput) {
+                modalEmailInput.value = usuarioEditando.email;
+            }
+            if (modalSenhaInput) {
+                modalSenhaInput.value = usuarioEditando.senha;
+            }
+            if (modalNomeFilial) {
+                modalNomeFilial.value = usuarioEditando.filial.id;
+            }
+            if (modalTipoUsuario) {
+                modalTipoUsuario.value = usuarioEditando.tipoUsuario.idTipoUsuario;
+            }
             document.querySelectorAll('#userModal input[type="checkbox"]').forEach(checkbox => {
                 checkbox.checked = usuarioEditando.permissoes.includes(checkbox.value);
             });
@@ -453,16 +609,16 @@
             userModal.style.display = 'block';
         }
     }
-
     saveButton.addEventListener('click', async () => {
         if (usuarioEditando) {
             const nome = modalNomeInput.value.trim();
             const email = modalEmailInput.value.trim();
+            const senha = modalSenhaInput.value.trim();
             const filial = modalNomeFilial.value;
             const permissoes = Array.from(document.querySelectorAll('#userModal input[type="checkbox"]:checked')).map(checkbox => checkbox.value);
 
-            if (nome && email && filial) {
-                const usuarioAtualizado = { ...usuarioEditando, nome, email, filial, permissoes };
+            if (nome && email && senha && filial) {
+                const usuarioAtualizado = { ...usuarioEditando, nome, email, senha, filial, permissoes };
                 try {
                     const response = await fetch(`/api/usuarios/${usuarioEditando.id}`, {
                         method: 'PUT',
@@ -489,13 +645,36 @@
     document.getElementById('cancelButton').addEventListener('click', () => {
         userModal.style.display = 'none';
     });
-    function removerUsuario(index) {
-        usuarios.splice(index, 1);
-        renderizarUsuarios();
+
+    async function inativarUsuario(id) {
+        const usuario = usuarios.find(usuario => usuario.id === id);
+        if (usuario) {
+            const novoStatus = !usuario.ativo;
+            try {
+                const response = await fetch(`/api/usuarios/${usuario.id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ ativo: novoStatus }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro ao atualizar o status do usuário');
+                }
+
+                usuario.ativo = novoStatus;
+                renderizarUsuarios();
+                alert(`Usuário ${novoStatus ? 'ativado' : 'inativado'} com sucesso!`);
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao atualizar o status do usuário: ' + error.message);
+            }
+        }
     }
 
     document.getElementById('botaoVoltar').addEventListener('click', () => {
-        window.location.href = 'http://localhost:8080/ordensdecompras.html';
+        window.location.href = '/ordensdecompras.html';
     });
 
     const span = document.getElementsByClassName("close")[0];

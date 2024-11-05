@@ -16,7 +16,7 @@ public class OrdemService {
     @Autowired
     private UsuariosService usuariosService;
 
-    public Ordem createOrdem(Ordem ordem, Integer usuarioId) {
+    public Ordem createOrdem(Ordem ordem, Long usuarioId) {
         String nomeUsuario = usuariosService.getNomeUsuarioById(usuarioId);
         if (nomeUsuario != null) {
             ordem.setNomeUsuario(nomeUsuario);

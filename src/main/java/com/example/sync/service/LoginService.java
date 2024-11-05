@@ -10,7 +10,7 @@ public class LoginService {
     @Autowired
     private UsuariosRepository usuariosRepository;
 
-    public Integer autenticar(String email, String senha) {
+    public Long autenticar(String email, String senha) {
         Usuarios usuarios = usuariosRepository.findByEmail(email);
         if (usuarios != null && senhaCorreta(usuarios.getSenha(), senha)) {
             return usuarios.getId();

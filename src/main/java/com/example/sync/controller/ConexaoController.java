@@ -28,7 +28,7 @@ public class ConexaoController {
                         Model model,
                         RedirectAttributes redirectAttributes,
                         HttpSession session) {
-        Integer usuarioId = loginService.autenticar(email, senha);
+        Long usuarioId = loginService.autenticar(email, senha);
 
         if (usuarioId != null) {
             session.setAttribute("usuarioId", usuarioId);

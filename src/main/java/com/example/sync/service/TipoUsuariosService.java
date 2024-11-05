@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TipoUsuariosService {
@@ -15,5 +16,17 @@ public class TipoUsuariosService {
 
     public List<TipoUsuarios> getAllTipoUsuarios() {
         return tipoUsuariosRepository.findAll();
+    }
+
+    public Optional<TipoUsuarios> findById(Long id) {
+        return tipoUsuariosRepository.findById(id);
+    }
+
+    public TipoUsuarios save(TipoUsuarios tipoUsuario) {
+        return tipoUsuariosRepository.save(tipoUsuario);
+    }
+
+    public void deleteById(Long id) {
+        tipoUsuariosRepository.deleteById(id);
     }
 }

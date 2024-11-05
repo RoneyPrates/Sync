@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro de Usuários</title>
+    <title>Cadastro de Filiais</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -99,12 +99,6 @@
         button:hover {
             background-color: #0056b3;
         }
-        .usuario-item {
-            margin: 5px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
         .btn-remove,
         .btn-editar {
             width: 80px;
@@ -122,22 +116,25 @@
         .btn-editar {
             background-color: blue;
         }
-        .checkbox-group {
-            margin-bottom: 20px;
-            margin-left: 10px;
-            margin-right: 10px;
+        .filial-item {
+            margin: 5px 0;
             display: flex;
-            flex-wrap: wrap;
-            color: #dddddd;
-        }
-        .checkbox-group label {
-            display: flex;
+            justify-content: flex-end;
             align-items: center;
-            margin-right: 10px;
+            width: 100%;
+            text-align: right;
         }
-        #usuarioList {
-            margin-top: 20px;
+        .button-group {
+            display: flex;
+            gap: 0;
+            margin-left: auto;
+        }
+        #filialList {
+            margin: 40px 10px;
             color: #dddddd;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
         }
         .modal {
             display: none;
@@ -161,7 +158,6 @@
             align-items: flex-start;
             color: #dddddd;
         }
-
         .modal-content label {
             margin-top: 10px;
         }
@@ -174,7 +170,6 @@
             margin-top: 5px;
             color: gray;
         }
-
         .modal-content button {
             margin-top: 20px;
             color: white;
@@ -210,11 +205,11 @@
 </div>
 <div class="header-container">
     <button id="botaoVoltar" class="botaovoltar"><img src="/botaovoltar.png" alt="Voltar"></button>
-    <h1>Cadastro de Usuários</h1>
+    <h1>Cadastro de Filiais</h1>
 </div>
 <div class="input-group">
     <input type="text" id="nomeInput" placeholder="Nome da filial">
-    <input type="number" id="cnpjInput" placeholder="CNPJ da filial">
+    <input type="text" id="cnpjInput" placeholder="CNPJ da filial">
     <input type="text" id="cidadeInput" placeholder="Cidade">
     <input type="text" id="estadoInput" placeholder="Estado">
 </div>
@@ -228,7 +223,7 @@
         <input type="text" id="modalNomeInput">
 
         <label>CNPJ:</label>
-        <input type="number" id="modalCnpjInput">
+        <input type="text" id="modalCnpjInput">
 
         <label>Cidade:</label>
         <input type="text" id="modalCidadeInput">
@@ -245,6 +240,26 @@
 <script>
     const nomeInput = document.getElementById('nomeInput');
     const cnpjInput = document.getElementById('cnpjInput');
+    cnpjInput.addEventListener('input', (event) => {
+        let value = event.target.value.replace(/\D/g, '');
+        if (value.length > 14) {
+            value = value.slice(0, 14);
+        }
+        if (value.length <= 2) {
+            value = value.replace(/(\d{2})(\d)/, '$1.$2');
+        }
+        if (value.length <= 5) {
+            value = value.replace(/(\d{2})(\d{3})(\d)/, '$1.$2.$3');
+        }
+        if (value.length <= 8) {
+            value = value.replace(/(\d{2})(\d{3})(\d{3})(\d)/, '$1.$2.$3/$4');
+        }
+        if (value.length > 8) {
+            value = value.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d)/, '$1.$2.$3/$4-$5');
+        }
+        event.target.value = value;
+    });
+
     const cidadeInput = document.getElementById('cidadeInput');
     const estadoInput = document.getElementById('estadoInput');
     const filialList = document.getElementById('filialList');
@@ -252,6 +267,25 @@
     const userModal = document.getElementById('userModal');
     const modalNomeInput = document.getElementById('modalNomeInput');
     const modalCnpjInput = document.getElementById('modalCnpjInput');
+    modalCnpjInput.addEventListener('input', (event) => {
+        let value = event.target.value.replace(/\D/g, '');
+        if (value.length > 14) {
+            value = value.slice(0, 14);
+        }
+        if (value.length <= 2) {
+            value = value.replace(/(\d{2})(\d)/, '$1.$2');
+        }
+        if (value.length <= 5) {
+            value = value.replace(/(\d{2})(\d{3})(\d)/, '$1.$2.$3');
+        }
+        if (value.length <= 8) {
+            value = value.replace(/(\d{2})(\d{3})(\d{3})(\d)/, '$1.$2.$3/$4');
+        }
+        if (value.length <= 14) {
+            value = value.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d)/, '$1.$2.$3/$4-$5');
+        }
+        event.target.value = value;
+    });
     const modalCidadeInput = document.getElementById('modalCidadeInput');
     const modalEstadoInput = document.getElementById('modalEstadoInput');
     const saveButton = document.getElementById('saveButton');
@@ -260,51 +294,48 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         listarFiliais();
-        carregarFiliais();
     });
 
-    async function carregarFiliais() {
+    async function listarFiliais() {
         try {
             const response = await fetch('/api/filial');
             if (!response.ok) {
-                throw new Error('Erro ao buscar as filiais');
+                throw new Error('Erro ao listar filiais');
             }
-            const filiais = await response.json();
-            console.log('Filiais carregadas:', filiais);
-
-            const filialSelect = document.getElementById('nomeFilial');
-            filialSelect.innerHTML = '';
-
-            const optionDefault = document.createElement('option');
-            optionDefault.value = '';
-            optionDefault.textContent = 'Selecione a Filial';
-            filialSelect.appendChild(optionDefault);
-
-            filiais.forEach(filial => {
-                const option = document.createElement('option');
-                option.value = filial.id;
-                option.textContent = `${filial.nome} - ${filial.cnpj}`;
-                filialSelect.appendChild(option);
-            });
+            const data = await response.json();
+            filiais = data;
+            renderizarFiliais();
         } catch (error) {
-            console.error('Erro:', error);
-            alert('Erro ao carregar as filiais.');
+            console.error('Erro ao listar filiais:', error);
+            alert('Erro ao listar filiais.');
         }
     }
 
-    function listarFiliais() {
-        fetch('/api/filial')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Erro ao listar filiais');
-                }
-                return response.json();
-            })
-            .then(data => {
-                filiais = data;
-                renderizarFiliais();
-            })
-            .catch(error => console.error('Erro ao listar filiais:', error));
+    function renderizarFiliais() {
+        filialList.innerHTML = '';
+        filiais.forEach(filial => {
+            if (filial.ativo) {
+                adicionarFiliaisNaLista(filial);
+            }
+        });
+    }
+    function adicionarFiliaisNaLista(filial) {
+        const filialItem = document.createElement('div');
+        filialItem.className = 'filial-item';
+
+        filialItem.innerHTML = `
+        <span style="color: ${filial.ativo ? 'white' : 'gray'};">
+            Nome: ${filial.nome} | CNPJ: ${filial.cnpj} | Cidade/Estado: (${filial.cidade}/${filial.estado})
+            | Status: ${filial.ativo ? 'Ativa' : 'Inativa'}
+        </span>
+        <div class="button-group">
+            <button class="btn-editar" onclick="editarFilial(${filial.id})">Editar</button>
+            <button class="btn-remove" onclick="removerFilial(${filial.id})">
+                ${filial.ativo ? 'Inativar' : 'Ativar'}
+            </button>
+        </div>
+    `;
+        filialList.appendChild(filialItem);
     }
 
     addButton.addEventListener('click', async () => {
@@ -314,8 +345,7 @@
         const estado = estadoInput.value.trim();
 
         if (nome && cnpj && cidade && estado) {
-            const novaFilial = { nome, cnpj, cidade, estado };
-
+            const novaFilial = { nome, cnpj, cidade, estado, ativo: true };
             try {
                 const response = await fetch('/api/filial', {
                     method: 'POST',
@@ -327,9 +357,7 @@
                 if (!response.ok) {
                     throw new Error('Erro ao adicionar filial');
                 }
-                const filialAdicionada = await response.json();
-                filiais.push(filialAdicionada);
-                renderizarFiliais();
+                await listarFiliais();
                 resetarCampos();
             } catch (error) {
                 console.error('Erro:', error);
@@ -340,26 +368,24 @@
         }
     });
 
-    function resetarCampos() {
-        nomeInput.value = '';
-        cnpjInput.value = '';
-        cidadeInput.value = '';
-        estadoInput.value = '';
-        filialEditando = null;
-        addButton.style.display = 'block';
-        saveButton.style.display = 'none';
-    }
-
-    function renderizarFiliais() {
-        filialList.innerHTML = '';
-        filiais.forEach(filiais => {
-            adicionarFiliaisNaLista(filiais);
-        });
+    async function removerFilial(id) {
+        try {
+            const response = await fetch(`/api/filial/${id}`, {
+                method: 'DELETE',
+            });
+            if (!response.ok) {
+                throw new Error('Erro ao remover filial');
+            }
+            await listarFiliais();
+        } catch (error) {
+            console.error('Erro:', error);
+            alert('Erro ao remover filial.');
+        }
     }
 
     function editarFilial(id) {
-        filialEditando = filiais.find(filiais => filiais.id === id);
-        if (filiaisEditando) {
+        filialEditando = filiais.find(filial => filial.id === id);
+        if (filialEditando) {
             modalNomeInput.value = filialEditando.nome;
             modalCnpjInput.value = filialEditando.cnpj;
             modalCidadeInput.value = filialEditando.cidade;
@@ -401,27 +427,21 @@
             }
         }
     });
+
     document.getElementById('cancelButton').addEventListener('click', () => {
         userModal.style.display = 'none';
     });
-    function removerFilial(index) {
-        filiais.splice(index, 1);
-        renderizarFiliais();
-    }
 
     document.getElementById('botaoVoltar').addEventListener('click', () => {
         window.location.href = 'http://localhost:8080/ordensdecompras.html';
     });
 
-    const span = document.getElementsByClassName("close")[0];
-    span.onclick = function() {
-        userModal.style.display = "none";
-    }
-
-    window.onclick = function(event) {
-        if (event.target == userModal) {
-            userModal.style.display = "none";
-        }
+    function resetarCampos() {
+        nomeInput.value = '';
+        cnpjInput.value = '';
+        cidadeInput.value = '';
+        estadoInput.value = '';
+        filialEditando = null;
     }
 </script>
 </body>
