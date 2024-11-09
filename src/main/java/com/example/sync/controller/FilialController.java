@@ -31,7 +31,7 @@ public class FilialController {
     @PostMapping
     public ResponseEntity<Filial> adicionarFilial(@RequestBody Filial filial) {
         Filial novaFilial = filialService.adicionarFilial(filial);
-        return ResponseEntity.status(201).body(novaFilial); // 201 Created
+        return ResponseEntity.status(201).body(novaFilial);
     }
 
     @DeleteMapping("/{id}")

@@ -57,7 +57,8 @@
                 <option value="">Todos</option>
                 <option value="Pendente">Pendente</option>
                 <option value="Reprovada">Reprovada</option>
-                <option value="Aprovada">Aprovada</option>
+                <option value="Compra Aprovada">Compra Aprovada</option>
+                <option value="Compra Efetuada">Compra Efetuada</option>
                 <option value="Finalizada">Finalizada</option>
             </select>
         </form>
@@ -99,7 +100,11 @@
         </form>
     </div>
 </div>
-
+<form action="/uploadPdf" method="post" enctype="multipart/form-data" style="display: none">
+    <label for="pdfFile">Escolha o arquivo PDF:</label>
+    <input type="file" id="pdfFile" name="pdfFile" accept="application/pdf">
+    <button type="submit">Enviar PDF</button>
+</form>
 <script src="script.js"></script>
 </body>
 </html>

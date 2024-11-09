@@ -33,12 +33,23 @@ public class OrdemController {
         }
     }
 
-    @PatchMapping("/{id}/aprovar")
-    public ResponseEntity<?> approveOrder(@PathVariable Long id) {
+    @PatchMapping("/{id}/aprovarcompra")
+    public ResponseEntity<?> compraAprovada(@PathVariable Long id) {
         Optional<Ordem> ordem = ordemService.getOrdemById(id);
         if (ordem.isPresent()) {
             Ordem ordemToUpdate = ordem.get();
-            ordemToUpdate.setStatus("Aprovada");
+            ordemToUpdate.setStatus("Compra Aprovada");
+            ordemService.saveOrdem(ordemToUpdate);
+            return ResponseEntity.ok(ordemToUpdate);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ordem não encontrada");
+    }
+    @PatchMapping("/{id}/efetuarcompra")
+    public ResponseEntity<?> compraEfetuada(@PathVariable Long id) {
+        Optional<Ordem> ordem = ordemService.getOrdemById(id);
+        if (ordem.isPresent()) {
+            Ordem ordemToUpdate = ordem.get();
+            ordemToUpdate.setStatus("Compra Efetuada");
             ordemService.saveOrdem(ordemToUpdate);
             return ResponseEntity.ok(ordemToUpdate);
         }

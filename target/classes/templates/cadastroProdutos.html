@@ -3,69 +3,374 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Produtos</title>
+    <title>Cadastro de Produtos</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            background-color: #022124;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #084347;
+            padding: 15px 20px;
+            color: #dddddd;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .logo {
+            flex: 1;
+        }
+        .nomeFilialHeader {
+            flex: 2;
+            text-align: center;
+            font-weight: bold;
+        }
+        .nomeUsuarioHeader {
+            flex: 1;
+            text-align: right;
+            font-weight: bold;
+        }
+        .logo img {
+            max-height: 50px;
         }
         h1 {
             text-align: center;
+            color: #dddddd;
         }
-        #produtoInput {
-            margin-bottom: 10px;
-        }
-        .produto-item {
+        .header-container {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 10px;
+            justify-content: center;
+            margin: 20px 0;
+            position: relative;
+        }
+        .botaovoltar {
+            position: absolute;
+            left: 20px;
+            height: 40px;
+            width: 60px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: transparent;
+        }
+        .botaovoltar img {
+            width: 40px;
+            height: 40px;
+        }
+        .input-group {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin-bottom: 20px;
+            margin-left: 10px;
+        }
+        .input-group label {
+            color: #dddddd;
+        }
+        .input-group input, select {
+            padding: 8px;
             border: 1px solid #ccc;
-            margin-bottom: 5px;
+            border-radius: 4px;
+            flex: 1;
+            margin-right: 10px;
+            color: gray;
+        }
+        button {
+            margin-top: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 10px;
+            margin-left: 10px;
+            margin-right: 10px;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .btn-remove,
+        .btn-editar {
+            width: 80px;
+            height: 40px;
+            color: white;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+            display: inline-block;
+            margin: 0;
         }
         .btn-remove {
             background-color: red;
+        }
+        .btn-editar {
+            background-color: blue;
+        }
+        .produto-item {
+            margin: 5px 0;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            width: 100%;
+            text-align: right;
+        }
+        .button-group {
+            display: flex;
+            gap: 0;
+            margin-left: auto;
+        }
+        #produtoList {
+            margin: 40px 10px;
+            color: #dddddd;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left:50%;
+            top: 50%;
+            width: 90%;
+            height: 70%;
+            transform: translate(-50%, -50%);
+            overflow: auto;
+            background-color: #084347;
+            border: 5px solid #022124;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .modal-content {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            color: #dddddd;
+        }
+        .modal-content label {
+            margin-top: 10px;
+        }
+        .modal-content input,
+        .modal-content select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+            margin-top: 5px;
+            color: gray;
+        }
+        .modal-content button {
+            margin-top: 20px;
             color: white;
             border: none;
-            padding: 5px 10px;
             cursor: pointer;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 20px;
+        }
+        #saveButton {
+            background-color: #0056b3;
+            color: white;
+        }
+        #cancelButton {
+            background-color: #a50919;
+            color: white;
+            margin-left: 4%;
         }
     </style>
 </head>
 <body>
-
-<h1>Lista de Produtos</h1>
-<input type="text" id="produtoInput" placeholder="Adicione um produto">
+<div class="header">
+    <div class="logo">
+        <img src="/logo.png" alt="Logo da Empresa">
+    </div>
+    <div id="nomeFilialHeader" class="nomeFilialHeader"></div>
+    <div id="nomeUsuarioHeader" class="nomeUsuarioHeader"></div>
+</div>
+<div class="header-container">
+    <button id="botaoVoltar" class="botaovoltar"><img src="/botaovoltar.png" alt="Voltar"></button>
+    <h1>Cadastro de Produtos</h1>
+</div>
+<div class="input-group">
+    <input type="text" id="nomeInput" placeholder="Nome do Produto">
+</div>
 <button id="addButton">Adicionar Produto</button>
-
 <div id="produtoList"></div>
 
+<div id="userModal" class="modal">
+    <div class="modal-content">
+        <h2>Editar Produto</h2>
+        <label>Nome:</label>
+        <input type="text" id="modalNomeInput">
+
+        <div class="button-container">
+            <button id="saveButton">Salvar Alterações</button>
+            <button id="cancelButton">Cancelar</button>
+        </div>
+    </div>
+</div>
 <script>
-    const produtoInput = document.getElementById('produtoInput');
+    const nomeInput = document.getElementById('nomeInput');
     const produtoList = document.getElementById('produtoList');
     const addButton = document.getElementById('addButton');
+    const userModal = document.getElementById('userModal');
+    const modalNomeInput = document.getElementById('modalNomeInput');
+    const saveButton = document.getElementById('saveButton');
+    let produtos = [];
+    let produtoEditando = null;
 
-    addButton.addEventListener('click', () => {
-        const produtoNome = produtoInput.value.trim();
-        if (produtoNome) {
-            const produtoItem = document.createElement('div');
-            produtoItem.className = 'produto-item';
-            produtoItem.innerHTML = `
-                    <span>${produtoNome}</span>
-                    <button class="btn-remove">Remover</button>
-                `;
-            produtoList.appendChild(produtoItem);
-            produtoInput.value = '';
+    document.addEventListener('DOMContentLoaded', () => {
+        listarProdutos();
+    });
 
-            const removeButton = produtoItem.querySelector('.btn-remove');
-            removeButton.addEventListener('click', () => {
-                produtoList.removeChild(produtoItem);
-            });
+    async function listarProdutos() {
+        try {
+            const response = await fetch('/api/produtos');
+            if (!response.ok) {
+                throw new Error('Erro ao listar produtos');
+            }
+            const data = await response.json();
+            produtos = data;
+            renderizarProdutos();
+        } catch (error) {
+            console.error('Erro ao listar produtos:', error);
+            alert('Erro ao listar produtos.');
+        }
+    }
+
+    function renderizarProdutos() {
+        produtoList.innerHTML = '';
+        produtos.forEach(produto => {
+                adicionarProdutosNaLista(produto);
+        });
+    }
+    function adicionarProdutosNaLista(produto) {
+        const produtoItem = document.createElement('div');
+        produtoItem.className = 'produto-item';
+
+        produtoItem.innerHTML = `
+        <span style="color: ${produto.ativo ? 'white' : 'gray'};">
+            Nome: ${produto.nome}
+            | Status: ${produto.ativo ? 'Ativa' : 'Inativa'}
+        </span>
+        <div class="button-group">
+            <button class="btn-editar" onclick="editarProduto(${produto.id})">Editar</button>
+            <button class="btn-remove" onclick="removerProduto(${produto.id})">
+                ${produto.ativo ? 'Inativar' : 'Ativar'}
+            </button>
+        </div>
+    `;
+        produtoList.appendChild(produtoItem);
+    }
+
+    addButton.addEventListener('click', async () => {
+        const nome = nomeInput.value.trim();
+
+        if (nome) {
+            const novoProduto = { nome, ativo: true };
+            try {
+                const response = await fetch('/api/produtos', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(novoProduto),
+                });
+                if (!response.ok) {
+                    throw new Error('Erro ao adicionar produto');
+                }
+                await listarProdutos();
+                resetarCampos();
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao adicionar produto.');
+            }
         } else {
-            alert('Por favor, insira um nome de produto.');
+            alert('Por favor, preencha todos os campos.');
         }
     });
-</script>
 
+    async function removerProduto(id) {
+        try {
+            const response = await fetch(`/api/produtos/${id}`, {
+                method: 'DELETE',
+            });
+            if (!response.ok) {
+                throw new Error('Erro ao remover produto');
+            }
+            await listarProdutos();
+        } catch (error) {
+            console.error('Erro:', error);
+            alert('Erro ao remover produto.');
+        }
+    }
+
+    function editarProduto(id) {
+        produtoEditando = produtos.find(produtos => produtos.id === id);
+        if (produtoEditando) {
+            modalNomeInput.value = produtoEditando.nome;
+            userModal.style.display = 'block';
+        }
+    }
+
+    saveButton.addEventListener('click', async () => {
+        if (produtoEditando) {
+            const nome = modalNomeInput.value.trim();
+
+            if (nome) {
+                const produtoAtualizado = { ...produtoEditando, nome};
+                try {
+                    const response = await fetch(`/api/produtos/${produtoEditando.id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(produtoAtualizado),
+                    });
+                    if (!response.ok) {
+                        throw new Error('Erro ao atualizar produto');
+                    }
+                    await listarProdutos();
+                    resetarCampos();
+                    userModal.style.display = 'none';
+                } catch (error) {
+                    console.error('Erro:', error);
+                    alert('Erro ao atualizar produto.');
+                }
+            } else {
+                alert('Por favor, preencha todos os campos.');
+            }
+        }
+    });
+
+    document.getElementById('cancelButton').addEventListener('click', () => {
+        userModal.style.display = 'none';
+    });
+
+    document.getElementById('botaoVoltar').addEventListener('click', () => {
+        window.location.href = 'http://localhost:8080/ordensdecompras.html';
+    });
+
+    function resetarCampos() {
+        nomeInput.value = '';
+        produtoEditando = null;
+    }
+</script>
 </body>
 </html>

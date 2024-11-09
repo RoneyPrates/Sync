@@ -314,9 +314,7 @@
     function renderizarFiliais() {
         filialList.innerHTML = '';
         filiais.forEach(filial => {
-            if (filial.ativo) {
                 adicionarFiliaisNaLista(filial);
-            }
         });
     }
     function adicionarFiliaisNaLista(filial) {

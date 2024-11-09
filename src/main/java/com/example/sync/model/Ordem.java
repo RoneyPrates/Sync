@@ -1,32 +1,32 @@
 package com.example.sync.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 public class Ordem {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private LocalDate dataOrdem;
     private BigDecimal valorOrdem;
     private String status;
-    private Byte anexo;
     private String nomeUsuario;
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
     private String observacao;
+
+    @ManyToOne
+    @JoinColumn(name = "idFilial")
+    private Filial filial;
+
+    @OneToMany(mappedBy = "ordem")
+    @JsonIgnore
+    private List<NotaFiscal> notasFiscais;
 
     public Long getId() {
         return id;
@@ -52,6 +52,14 @@ public class Ordem {
         this.valorOrdem = valorOrdem;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public String getObservacao() {
         return observacao;
     }
@@ -59,11 +67,20 @@ public class Ordem {
     public void setObservacao(String observacao) {
         this.observacao = observacao;
     }
-    public Byte getAnexo() {return anexo;}
 
-    public void setAnexo(Byte anexo) {this.anexo = anexo;}
+    public String getNomeUsuario() {
+        return nomeUsuario;
+    }
 
-    public String getNomeUsuario() {return nomeUsuario;}
+    public void setNomeUsuario(String nomeUsuario) {
+        this.nomeUsuario = nomeUsuario;
+    }
 
-    public void setNomeUsuario(String nomeUsuario) {this.nomeUsuario = nomeUsuario;}
+    public Filial getFilial() {
+        return filial;
+    }
+
+    public void setFilial(Filial filial) {
+        this.filial = filial;
+    }
 }

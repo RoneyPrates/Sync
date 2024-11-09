@@ -42,28 +42,30 @@ function displayOrdem(ordens, section) {
             <p><strong>Status:</strong> <span style="color: ${statusColor};">${ordem.status}</span></p>
             <p><strong>Observação:</strong> ${ordem.observacao}</p>
             <p><strong>Usuário:</strong> ${ordem.nomeUsuario}</p>
+            <p><strong>Filial:</strong> ${ordem.filial.nome}</p>
             <div class="buttons">
                 ${section === 'ordensBanco' ?
             (ordem.status === 'Pendente' ?
                 `<button class="btn-edit" onclick="editOrdem(${ordem.id})"><img src="editar.png" alt="Editar"></button>
-                        <button class="btn-approve" onclick="approveOrdem(${ordem.id})"><img src="aprovada.png" alt="Aprovar"></button>
+                        <button class="btn-approve" onclick="compraAprovada(${ordem.id})"><img src="compraaprovada.png" alt="Aprovar"></button>
                         <button class="btn-reject" onclick="rejectOrdem(${ordem.id})"><img src="reprovada.png" alt="Reprovar"></button>
                         <button class="btn-produto" onclick="abrirProdutos(${ordem.id})"><img src="visualizar.png" alt="Visualizar Produtos"></button>
                         <button class="btn-delete" onclick="deleteOrdem(${ordem.id})"><img src="lixeira.png" alt="Excluir"></button>` : '') : ''
         }
                 ${section === 'ordensBanco' ?
-            (ordem.status === 'Aprovada' ?
-                `<button class="btn-reject" onclick="rejectOrdem(${ordem.id})"><img src="reprovada.png" alt="Reprovar"></button>
-                        <button class="btn-delete" onclick="deleteOrdem(${ordem.id})"><img src="lixeira.png" alt="Excluir"></button>
-                        <button class="btn-produto" onclick="abrirProdutos(${ordem.id})"><img src="visualizar.png" alt="Visualizar Produtos"></button>
-                        <button class="btn-finalizar" onclick="finalizarOrdem(${ordem.id})"><img src="finalizado.png" alt="Finalizar"></button>` : '') : ''
+            (ordem.status === 'Compra Aprovada' ?
+                `<button class="btn-approve" onclick="compraEfetuada(${ordem.id})"><img src="compraefetuada.png" alt="Aprovar"></button>
+                        <button class="btn-produto" onclick="abrirProdutos(${ordem.id})"><img src="visualizar.png" alt="Visualizar Produtos"></button>` : '') : ''
         }
                 ${section === 'ordensBanco' ?
+            (ordem.status === 'Compra Efetuada' ?
+                `<button class="btn-produto" onclick="abrirProdutos(${ordem.id})"><img src="visualizar.png" alt="Visualizar Produtos"></button>
+                        <button class="btn-invoice" onclick="abrirNotaFiscal('${ordem.id}')"><img src="notafiscal.png" alt="Nota Fiscal"        
+                        <button class="btn-finalizar" onclick="finalizarOrdem(${ordem.id})"><img src="finalizado.png" alt="Finalizar"></button>` : '') : ''
+        }                
+                ${section === 'ordensBanco' ?
             (ordem.status === 'Reprovada' ?
-                `<button class="btn-edit" onclick="editOrdem(${ordem.id})"><img src="editar.png" alt="Editar"></button>
-                        <button class="btn-approve" onclick="approveOrdem(${ordem.id})"><img src="aprovada.png" alt="Aprovar"></button>
-                        <button class="btn-produto" onclick="abrirProdutos(${ordem.id})"><img src="visualizar.png" alt="Visualizar Produtos"></button>
-                        <button class="btn-delete" onclick="deleteOrdem(${ordem.id})"><img src="lixeira.png" alt="Excluir"></button>` : '') : ''
+                `<button class="btn-produto" onclick="abrirProdutos(${ordem.id})"><img src="visualizar.png" alt="Visualizar Produtos"></button>` : '') : ''
         } 
                 ${section === 'ordensBanco' ?
             (ordem.status === 'Finalizada' ?
@@ -79,7 +81,9 @@ function getStatusColor(status) {
     switch (status) {
         case 'Pendente':
             return '#FFD700';
-        case 'Aprovada':
+        case 'Compra Aprovada':
+            return '#00FF00';
+        case 'Compra Efetuada':
             return 'green';
         case 'Reprovada':
             return 'red';
@@ -175,28 +179,77 @@ function editOrdem(id) {
 function closeModal() {
     document.getElementById('editModal').style.display = 'none';
 }
-async function approveOrdem(id) {
+async function compraAprovada(id) {
     const ordem = ordens.find(ordem => ordem.id === id);
     if (ordem) {
-        const response = await fetch(`/ordensdecompras/${id}/aprovar`, {
+        const response = await fetch(`/ordensdecompras/${id}/aprovarcompra`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ status: 'Aprovada' })
+            body: JSON.stringify({ status: 'Compra Aprovada' })
         });
 
         if (!response.ok) {
             throw new Error('Sem resposta do servidor');
         }
-        ordem.status = 'Aprovada';
+        ordem.status = 'Compra Aprovada';
         alert('Ordem aprovada com sucesso!');
         location.reload();
-        window.open("https://cadastro.emissornfe.sebrae.com.br/", "_blank");
-        fileInput.click();
     }
 }
+async function compraEfetuada(id) {
+    const pdfFile = await solicitarPdf();
+    if (!pdfFile || pdfFile.type !== 'application/pdf') {
+        alert('Por favor, envie um arquivo PDF antes de completar a compra.');
+        return;
+    }
 
+    const formData = new FormData();
+    formData.append('pdfFile', pdfFile);
+
+    const pdfResponse = await fetch('/uploadPdf', {
+        method: 'POST',
+        body: formData
+    });
+
+    if (!pdfResponse.ok) {
+        alert('Erro ao enviar o PDF. Tente novamente.');
+        return;
+    }
+
+    const ordem = ordens.find(ordem => ordem.id === id);
+    if (ordem) {
+        const response = await fetch(`/ordensdecompras/${id}/efetuarcompra`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status: 'Compra Efetuada' })
+        });
+
+        if (!response.ok) {
+            throw new Error('Sem resposta do servidor');
+        }
+
+        ordem.status = 'Compra Efetuada';
+        alert('Ordem aprovada com sucesso!');
+        location.reload();
+    }
+}
+function solicitarPdf() {
+    return new Promise((resolve, reject) => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.pdf';
+
+        input.onchange = () => {
+            const file = input.files[0];
+            resolve(file);
+        };
+        input.click();
+    });
+}
 async function rejectOrdem(id) {
     const ordem = ordens.find(ordem => ordem.id === id);
     if (ordem) {
@@ -237,17 +290,6 @@ async function deleteOrdem(id) {
 }
 async function finalizarOrdem(id) {
     const ordem = ordens.find(ordem => ordem.id === id);
-    const fileInput = document.getElementById('fileInput');
-    if (!fileInput.files.length) {
-        alert('Por favor, adicione um arquivo PDF ou XML antes de finalizar a ordem.');
-        return;
-    }
-    const file = fileInput.files[0];
-    const fileType = file.type;
-    if (fileType !== 'application/pdf' && fileType !== 'application/xml') {
-        alert('O arquivo deve ser um PDF ou XML.');
-        return;
-    }
     if (ordem) {
         const response = await fetch(`/ordensdecompras/${id}/finalizar`, {
             method: 'PATCH',
@@ -263,9 +305,8 @@ async function finalizarOrdem(id) {
         alert('Ordem finalizada com sucesso!');
     }
 }
-function abrirNotaFiscal() {
-        window.open("https://cadastro.emissornfe.sebrae.com.br/", "_blank");
-        fileInput.click();
+function abrirNotaFiscal(id) {
+    window.open(`/notasfiscais/ordem/${id}/baixar`, '_blank');
 }
 function abrirFiltros() {
     document.querySelector(".abrirFiltros").textContent = "Filtros";
