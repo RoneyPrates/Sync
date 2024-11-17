@@ -1,29 +1,75 @@
-const ordens = [];
+let ordens = [];
 const deletedOrdens = [];
 let currentEditingOrder = null;
+let produtosSelecionados = [];
+let valorTotal = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
-    fetchOrders();
+    const usuarioId = sessionStorage.getItem('usuarioId');
+    const usuarioTipo = sessionStorage.getItem('usuarioTipo');
+
+    if (!usuarioId || !usuarioTipo) {
+        console.error("Erro: usuarioId ou usuarioTipo não encontrado no sessionStorage");
+        window.location.href = "/login";
+    } else {
+        console.log("Usuário ID e Tipo recuperados do sessionStorage:", usuarioId, usuarioTipo);
+    }
+
+    fetchOrders(usuarioId, usuarioTipo);
     document.getElementById('aplicarFiltros').addEventListener('click', aplicarFiltros);
 });
-const fetchOrders = async () => {
+
+const fetchOrders = async (usuarioId, usuarioTipo) => {
     try {
         const response = await fetch('/ordensdecompras');
         if (!response.ok) {
             throw new Error('Sem resposta do servidor');
         }
+
         const ordensBanco = await response.json();
-        ordens.push(...ordensBanco);
-        displayOrdens();
+        console.log('Ordens recebidas do servidor:', ordensBanco);
+        ordensBanco.forEach(ordem => {
+            console.log(`Ordem ID ${ordem.id}: Filial ID da ordem ${ordem.filial?.id}`);
+        });
+
+        let ordensFiltradas = ordensBanco;
+
+        if (usuarioTipo === 'admin') {
+            ordensFiltradas = ordensBanco;
+        } else if (usuarioTipo === 'user') {
+            ordensFiltradas = ordensBanco.filter(ordem => {
+                console.log('Ordem:', ordem);
+                console.log('ID do usuário da ordem:', ordem.usuario?.id);
+                return Number(ordem.usuario?.id) === Number(usuarioId);
+            });
+        } else if (usuarioTipo === 'gerente') {
+            const filialIdGerente = sessionStorage.getItem('filialId');
+            console.log('ID da filial do gerente:', filialIdGerente);
+
+            if (filialIdGerente) {
+                ordensFiltradas = ordensBanco.filter(ordem => Number(ordem.filial?.id) === Number(filialIdGerente));
+            } else {
+                console.error('Filial do gerente não encontrada.');
+                ordensFiltradas = [];
+            }
+        }
+
+        console.log('Ordens filtradas:', ordensFiltradas);
+
+        ordens = ordensFiltradas;
+        displayOrdens(ordensFiltradas);
     } catch (error) {
         console.error('Erro ao buscar ordens:', error);
         document.getElementById('ordensBanco').innerHTML = '<p>Erro ao carregar ordens.</p>';
     }
 };
+
+
 function displayOrdens(filteredOrdens = ordens) {
     displayOrdem(filteredOrdens.filter(ordem => ordem.status !== 'Deletada'), 'ordensBanco');
     displayOrdem(filteredOrdens.filter(ordem => ordem.status === 'Deletada'), 'deleted');
 }
+
 function displayOrdem(ordens, section) {
     const ordemGrid = document.getElementById(section);
     ordemGrid.innerHTML = '';
@@ -32,7 +78,7 @@ function displayOrdem(ordens, section) {
         const ordemItem = document.createElement('div');
         ordemItem.className = 'ordem-item';
         ordemItem.style.backgroundColor = 'white';
-        ordemItem.style.color = 'black'
+        ordemItem.style.color = 'black';
         const statusColor = getStatusColor(ordem.status);
         ordemItem.style.border = `5px solid ${statusColor}`;
         ordemItem.innerHTML = `
@@ -41,27 +87,27 @@ function displayOrdem(ordens, section) {
             <p><strong>Valor da Ordem:</strong> ${ordem.valorOrdem}</p>
             <p><strong>Status:</strong> <span style="color: ${statusColor};">${ordem.status}</span></p>
             <p><strong>Observação:</strong> ${ordem.observacao}</p>
-            <p><strong>Usuário:</strong> ${ordem.nomeUsuario}</p>
+            <p><strong>Usuário:</strong> ${ordem.usuario.nome}</p>
             <p><strong>Filial:</strong> ${ordem.filial.nome}</p>
             <div class="buttons">
                 ${section === 'ordensBanco' ?
             (ordem.status === 'Pendente' ?
                 `<button class="btn-edit" onclick="editOrdem(${ordem.id})"><img src="editar.png" alt="Editar"></button>
-                        <button class="btn-approve" onclick="compraAprovada(${ordem.id})"><img src="compraaprovada.png" alt="Aprovar"></button>
-                        <button class="btn-reject" onclick="rejectOrdem(${ordem.id})"><img src="reprovada.png" alt="Reprovar"></button>
-                        <button class="btn-produto" onclick="abrirProdutos(${ordem.id})"><img src="visualizar.png" alt="Visualizar Produtos"></button>
-                        <button class="btn-delete" onclick="deleteOrdem(${ordem.id})"><img src="lixeira.png" alt="Excluir"></button>` : '') : ''
+                <button class="btn-approve" onclick="compraAprovada(${ordem.id})"><img src="compraaprovada.png" alt="Aprovar"></button>
+                <button class="btn-reject" onclick="rejectOrdem(${ordem.id})"><img src="reprovada.png" alt="Reprovar"></button>
+                <button class="btn-produto" onclick="abrirProdutos(${ordem.id})"><img src="visualizar.png" alt="Visualizar Produtos"></button>
+                <button class="btn-delete" onclick="deleteOrdem(${ordem.id})"><img src="lixeira.png" alt="Excluir"></button>` : '') : ''
         }
                 ${section === 'ordensBanco' ?
             (ordem.status === 'Compra Aprovada' ?
                 `<button class="btn-approve" onclick="compraEfetuada(${ordem.id})"><img src="compraefetuada.png" alt="Aprovar"></button>
-                        <button class="btn-produto" onclick="abrirProdutos(${ordem.id})"><img src="visualizar.png" alt="Visualizar Produtos"></button>` : '') : ''
+                <button class="btn-produto" onclick="abrirProdutos(${ordem.id})"><img src="visualizar.png" alt="Visualizar Produtos"></button>` : '') : ''
         }
                 ${section === 'ordensBanco' ?
             (ordem.status === 'Compra Efetuada' ?
                 `<button class="btn-produto" onclick="abrirProdutos(${ordem.id})"><img src="visualizar.png" alt="Visualizar Produtos"></button>
-                        <button class="btn-invoice" onclick="abrirNotaFiscal('${ordem.id}')"><img src="notafiscal.png" alt="Nota Fiscal"        
-                        <button class="btn-finalizar" onclick="finalizarOrdem(${ordem.id})"><img src="finalizado.png" alt="Finalizar"></button>` : '') : ''
+                <button class="btn-invoice" onclick="abrirNotaFiscal('${ordem.id}')"><img src="notafiscal.png" alt="Nota Fiscal"></button>
+                <button class="btn-finalizar" onclick="finalizarOrdem(${ordem.id})"><img src="finalizado.png" alt="Finalizar"></button>` : '') : ''
         }                
                 ${section === 'ordensBanco' ?
             (ordem.status === 'Reprovada' ?
@@ -70,13 +116,14 @@ function displayOrdem(ordens, section) {
                 ${section === 'ordensBanco' ?
             (ordem.status === 'Finalizada' ?
                 `<button class="btn-produto" onclick="abrirProdutos(${ordem.id})"><img src="visualizar.png" alt="Visualizar Produtos"></button>
-                        <button class="btn-invoice" onclick="abrirNotaFiscal('${ordem.id}')"><img src="notafiscal.png" alt="Nota Fiscal"></button>` : '') : ''
+                <button class="btn-invoice" onclick="abrirNotaFiscal('${ordem.id}')"><img src="notafiscal.png" alt="Nota Fiscal"></button>` : '') : ''
         }                          
             </div>
         `;
         ordemGrid.appendChild(ordemItem);
     });
 }
+
 function getStatusColor(status) {
     switch (status) {
         case 'Pendente':
@@ -95,90 +142,273 @@ function getStatusColor(status) {
             return 'white';
     }
 }
+
+function getProdutosSelecionados() {
+    return produtosSelecionados.map(produto => ({
+        produtoId: produto.produto_id,
+        quantidade: produto.quantidade,
+        valorUnitario: produto.valor_unitario,
+        valorTotal: produto.valor_total
+    }));
+}
+
 async function createOrdem() {
     const date = document.getElementById('createDate').value;
     const observacao = document.getElementById('createObservacao').value;
-    const value = parseFloat(document.getElementById('createValue').value);
-    if (isNaN(value) || value <= 0) {
-        alert('Por favor, preencha um valor válido.');
+
+    const nomeUsuario = sessionStorage.getItem('nomeUsuario');
+    const filialId = sessionStorage.getItem('filialId');
+
+    if (!date || !nomeUsuario || !filialId) {
+        alert('Por favor, preencha todos os campos obrigatórios.');
         return;
     }
-    if (!date) {
-        alert('Por favor, preencha a data.');
-        return;
+
+    const valorTotal = produtosSelecionados.reduce((total, produto) => total + produto.valor_total, 0);
+    console.log("Valor total calculado:", valorTotal);
+    const valorOrdem = isNaN(valorTotal) || valorTotal <= 0 ? 0 : valorTotal;
+
+    const newOrdem = {
+        dataOrdem: date,
+        observacao: observacao,
+        status: 'Pendente',
+        valorOrdem: valorTotal > 0 ? valorTotal : 0,
+        nomeUsuario: nomeUsuario,
+        usuario: { id: sessionStorage.getItem('usuarioId') },
+        filial: { id: filialId }
+    };
+
+    try {
+        const responseOrdem = await fetch('/ordensdecompras', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newOrdem)
+        });
+
+        if (!responseOrdem.ok) {
+            const errorData = await responseOrdem.json();
+            throw new Error(errorData.message || 'Erro ao criar a ordem');
+        }
+
+        const ordemCriada = await responseOrdem.json();
+
+        const produtosSelecionados = getProdutosSelecionados();
+        if (produtosSelecionados.length > 0) {
+            const responseProdutos = await fetch(`/ordensdecompras/${ordemCriada.id}/produtos`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(produtosSelecionados)
+            });
+
+            if (!responseProdutos.ok) {
+                const errorData = await responseProdutos.json();
+                throw new Error(errorData.message || 'Erro ao adicionar produtos na ordem');
+            }
+        }
+
+        alert('Ordem criada com sucesso!');
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao criar a ordem: ' + error.message);
     }
-    const newOrdem = { dataOrdem: date, observacao, status: 'Pendente', valorOrdem: value, nomeUsuario: 'admin' };
-    console.log('Enviando ordem:', newOrdem);
-    const response = await fetch('/ordensdecompras', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(newOrdem)
-    });
-    if (!response.ok) {
-        alert('Erro ao criar a ordem. Por favor, tente novamente.');
-        return;
-    }
-    const createdOrder = await response.json();
-    ordens.push(createdOrder);
-    alert('Ordem criada com sucesso! ID: ' + createdOrder.id);
-    location.reload();
 }
+
 function openCreateModal() {
     document.getElementById('createModal').style.display = 'flex';
 }
+
 function closeCreateModal() {
     document.getElementById('createModal').style.display = 'none';
+    document.getElementById('produtoModal').style.display = 'none';
 }
 
-function saveEdit() {
+function abrirModalProduto() {
+    document.getElementById('produtoModal').style.display = 'flex';
+    carregarProdutos();
+}
+
+async function carregarProdutos(ordemId) {
+    try {
+        const response = await fetch('/api/produtos');
+        if (!response.ok) {
+            throw new Error('Erro ao carregar os produtos');
+        }
+
+        const produtos = await response.json();
+        console.log('Produtos recebidos:', produtos);
+
+        const ordem = ordens.find(o => o.id === ordemId);
+        const produtosSelecionados = ordem ? ordem.produtos : [];
+
+        const produtoList = document.getElementById('produtoList').getElementsByTagName('tbody')[0];
+        produtoList.innerHTML = '';
+
+        if (Array.isArray(produtos)) {
+            const produtosAtivos = produtos.filter(produto => produto.ativo);
+            console.log('Produtos Ativos:', produtosAtivos);
+
+            if (produtosAtivos.length > 0) {
+                produtosAtivos.forEach(produto => {
+                    const produtoNaOrdem = produtosSelecionados.find(p => p.produto_id === produto.id);
+                    const quantidade = produtoNaOrdem ? produtoNaOrdem.quantidade : 1;
+                    const preco = produtoNaOrdem ? produtoNaOrdem.valor_unitario : produto.preco || 0;
+
+                    const row = produtoList.insertRow();
+                    row.innerHTML = `
+                        <td class="campos">${produto.nome}</td>
+                        <td>
+                            <div class="campos">
+                                <label for="quantidade_${produto.id}">Quantidade:</label>
+                                <input type="number" id="quantidade_${produto.id}" min="1" value="${quantidade}">
+                                <label for="preco_${produto.id}">Preço:</label>
+                                <input type="number" id="preco_${produto.id}" min="0" step="0.01" value="${preco}">
+                                <button type="button" id="adicionarProduto_${produto.id}" onclick="adicionarOuRemoverProduto(${produto.id}, '${produto.nome}', ${preco})">
+                                    ${produtoNaOrdem ? 'Remover' : 'Adicionar'}
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                });
+            } else {
+                console.log('Nenhum produto ativo encontrado.');
+            }
+        } else {
+            console.error('A estrutura dos dados não é um array:', produtos);
+        }
+
+        const produtoListDiv = document.getElementById('produtoListDiv');
+        if (produtoListDiv) {
+            produtoListDiv.style.display = 'block';
+        } else {
+            console.error('Elemento produtoListDiv não encontrado.');
+        }
+
+    } catch (error) {
+        console.error('Erro ao carregar os produtos:', error);
+        alert('Erro ao carregar produtos: ' + error.message);
+    }
+}
+
+function adicionarOuRemoverProduto(id, nome, preco) {
+    const quantidade = parseInt(document.getElementById(`quantidade_${id}`).value);
+    console.log('Preço:', preco);
+    console.log('Quantidade:', quantidade);
+
+    if (isNaN(preco) || preco <= 0 || isNaN(quantidade) || quantidade <= 0) {
+        alert('Por favor, insira valores válidos para preço e quantidade.');
+        return;
+    }
+
+    const produtoIndex = produtosSelecionados.findIndex(produto => produto.produto_id === id);
+
+    if (produtoIndex === -1) {
+        const produtoSelecionado = {
+            produto_id: id,
+            nome,
+            quantidade,
+            valor_unitario: preco,
+            valor_total: preco * quantidade
+        };
+        produtosSelecionados.push(produtoSelecionado);
+    } else {
+        produtosSelecionados[produtoIndex].quantidade = quantidade;
+        produtosSelecionados[produtoIndex].valor_total = preco * quantidade;
+    }
+
+    console.log('Produtos Selecionados após a alteração:', produtosSelecionados);
+
+    atualizarValorTotal();
+
+    const botao = document.getElementById(`adicionarProduto_${id}`);
+    if (produtoIndex === -1) {
+        botao.innerText = 'Remover';
+    } else {
+        botao.innerText = 'Adicionar';
+    }
+    document.getElementById(`quantidade_${id}`).value = quantidade;
+    document.getElementById(`preco_${id}`).value = preco;
+}
+
+function atualizarValorTotal() {
+    valorTotal = produtosSelecionados.reduce((acc, produto) => acc + produto.valor_total, 0);
+
+    document.getElementById('createValue').value = valorTotal.toFixed(2);
+}
+
+function inicializarModais() {
+    document.getElementById('produtoModal').style.display = 'none';
+}
+window.onload = inicializarModais;
+
+async function saveEdit() {
     const date = document.getElementById('editDate').value;
     const observacao = document.getElementById('editObservacao').value;
-    const value = parseFloat(document.getElementById('editValue').value);
-    if (currentEditingOrder) {
-        currentEditingOrder.dataOrdem = date;
-        currentEditingOrder.observacao = observacao;
-        currentEditingOrder.valorOrdem = value;
-        fetch(`/ordensdecompras/${currentEditingOrder.id}`, {
+    const valorTotal = parseFloat(document.getElementById('editValue').value);
+
+    if (!date || !observacao || !valorTotal) {
+        alert('Por favor, preencha todos os campos obrigatórios.');
+        return;
+    }
+
+    const updatedOrdem = {
+        dataOrdem: date,
+        observacao: observacao,
+        valorOrdem: valorTotal
+    };
+
+    try {
+        const response = await fetch(`/ordensdecompras/${currentEditingOrder.id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                valorOrdem: value,
-                dataOrdem: date,
-                observacao: observacao
-            })
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Erro ao atualizar a ordem');
-                }
-                return response.json();
-            })
-            .then(updatedOrder => {
-                const index = ordens.findIndex(ordem => ordem.id === updatedOrder.id);
-                if (index !== -1) {
-                    ordens[index] = updatedOrder;
-                }
-                alert('Ordem editada com sucesso!');
-                location.reload();
-            });
+            body: JSON.stringify(updatedOrdem)
+        });
+
+        if (!response.ok) {
+            throw new Error('Erro ao editar a ordem');
+        }
+
+        const ordemAtualizada = await response.json();
+
+        const index = ordens.findIndex(ordem => ordem.id === ordemAtualizada.id);
+        if (index !== -1) {
+            ordens[index] = ordemAtualizada;
+        }
+
+        alert('Ordem editada com sucesso!');
+        closeModal();
+        displayOrdens(ordens);
+
+    } catch (error) {
+        console.error('Erro ao salvar a edição:', error);
+        alert('Erro ao salvar a edição da ordem: ' + error.message);
     }
 }
+
 function editOrdem(id) {
-    currentEditingOrder = ordens.find(ordem => ordem.id === id);
+
+    currentEditingOrder = ordens.find(ordem => Number(ordem.id) === Number(id));
+
     if (currentEditingOrder) {
         document.getElementById('editDate').value = currentEditingOrder.dataOrdem;
         document.getElementById('editObservacao').value = currentEditingOrder.observacao;
         document.getElementById('editValue').value = currentEditingOrder.valorOrdem;
         document.getElementById('editModal').style.display = 'flex';
+    } else {
+        console.log('Ordem não encontrada');
+        alert('Ordem não encontrada');
     }
 }
+
 function closeModal() {
     document.getElementById('editModal').style.display = 'none';
 }
+
 async function compraAprovada(id) {
     const ordem = ordens.find(ordem => ordem.id === id);
     if (ordem) {
@@ -308,6 +538,53 @@ async function finalizarOrdem(id) {
 function abrirNotaFiscal(id) {
     window.open(`/notasfiscais/ordem/${id}/baixar`, '_blank');
 }
+function abrirProdutos(ordemId) {
+    console.log("Buscando produtos para a ordem ID:", ordemId);
+    fetch(`/ordensdecompras/${ordemId}/produtos`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Erro ao buscar produtos da ordem");
+            }
+            return response.json();
+        })
+        .then(ordem => {
+            console.log("Dados recebidos da API:", ordem);
+            const produtosContainer = document.getElementById('produtosContainer');
+            const tabelaProdutos = document.getElementById('produtosTabela');
+            const alertaSemProdutos = document.getElementById('alertaSemProdutos');
+            produtosContainer.style.display = 'block';
+            if (ordem && ordem.produtos && ordem.produtos.length > 0) {
+                let produtosList = '';
+                ordem.produtos.forEach(produto => {
+                    produtosList += `
+                        <tr>
+                            <td>${produto.produto.nome}</td>
+                            <td>${produto.quantidade}</td>
+                            <td>${produto.valorUnitario}</td>
+                            <td>${produto.valorTotal}</td>
+                        </tr>
+                    `;
+                });
+
+                tabelaProdutos.innerHTML = produtosList;
+                alertaSemProdutos.style.display = 'none';
+                tabelaProdutos.style.display = 'table';
+            } else {
+                tabelaProdutos.style.display = 'none';
+                alertaSemProdutos.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error("Erro ao obter produtos:", error);
+            alert("Houve um erro ao carregar os produtos.");
+        });
+}
+
+function fecharProdutos() {
+    const produtosContainer = document.getElementById('produtosContainer');
+    produtosContainer.style.display = 'none';
+}
+
 function abrirFiltros() {
     document.querySelector(".abrirFiltros").textContent = "Filtros";
     document.getElementById('formContainer').style.display = 'block';
@@ -329,9 +606,10 @@ function aplicarFiltros() {
     displayOrdens(filteredOrders);
     document.getElementById('formContainer').style.display = 'none';
 }
-async function buscarNomeFilial(id) {
+
+async function buscarNomeFilial(idFilial) {
     try {
-        const response = await fetch(`/api/filial/${id}`);
+        const response = await fetch(`/api/filial/${idFilial}`);
         if (!response.ok) {
             throw new Error('Erro ao buscar o nome da filial');
         }
@@ -343,15 +621,18 @@ async function buscarNomeFilial(id) {
         document.getElementById('nomeFilial').innerText = 'Erro ao carregar nome da filial.';
     }
 }
-async function buscarNomeUsuario(id) {
+
+async function buscarNomeUsuario(usuarioId) {
     try {
-        const response = await fetch(`/api/usuarios/${id}`);
+        const response = await fetch(`/api/usuarios/${usuarioId}`);
         if (!response.ok) {
             throw new Error('Erro ao buscar o nome do Usuário');
         }
         const usuario = await response.json();
+        console.log('Usuário encontrado:', usuario);
+
         const nomeUsuario = usuario.nome;
-        const idFilial = usuario.idFilial;
+        const idFilial = usuario.filial?.id;
 
         document.getElementById('nomeUsuario').innerText = nomeUsuario;
 
@@ -360,31 +641,27 @@ async function buscarNomeUsuario(id) {
         } else {
             document.getElementById('nomeFilial').innerText = 'Nenhuma filial associada.';
         }
+        return { nomeUsuario, idFilial };
     } catch (error) {
         console.error('Erro:', error);
         document.getElementById('nomeUsuario').innerText = 'Erro ao carregar nome do Usuário.';
+        document.getElementById('nomeFilial').innerText = 'Erro ao carregar nome da filial.';
+        return null;
     }
 }
+
 document.addEventListener('DOMContentLoaded', () => {
-    const usuarioId = localStorage.getItem('usuarioId');
+    const usuarioId = sessionStorage.getItem('usuarioId');
 
     if (usuarioId) {
+        console.log('Usuário ID recuperado do sessionStorage:', usuarioId);
         buscarNomeUsuario(usuarioId);
     } else {
         console.error('Usuário não logado');
         document.getElementById('nomeUsuario').innerText = 'Usuário não logado.';
+        document.getElementById('nomeFilial').innerText = 'Nenhuma filial associada.';
     }
 });
-
-
-
-
-
-
-
-
-
-
 
 function openNav() {
     var menu = document.getElementById("menu");
@@ -395,6 +672,7 @@ function showSection(section) {
     document.getElementById('deleted').style.display = section === 'deleted' ? 'flex' : 'none';
 }
 function logout() {
+    sessionStorage.removeItem("usuarioId");
     window.location.href = "/login";
 }
 function cadastroProdutos() {

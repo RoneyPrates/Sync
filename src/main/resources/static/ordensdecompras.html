@@ -66,20 +66,20 @@
     <button class="btAplicarFiltros" id="aplicarFiltros">Aplicar Filtros</button>
 </div>
 
-<div id="editModal" class="modal">
+<div id="editModal" class="modal" style="display: none;">
     <div class="modal-content">
         <h2>Editar Ordem</h2>
         <form id="editForm">
             <input type="hidden" id="editId">
-            <label for="editValue">Valor:</label>
-            <input type="number" id="editValue" step="0.01">
+            <label for="editValue">Valor Total:</label>
+            <input type="text" id="editValue" readonly step="0.01">
             <label for="editDate">Data:</label>
             <input type="date" id="editDate">
             <label for="editObservacao">Observação:</label>
             <input type="text" id="editObservacao">
             <button type="button" class="salvar" onclick="saveEdit()">Salvar</button>
             <button type="button" class="cancel" onclick="closeModal()">Cancelar</button>
-            <button type="button" class="adProduto" onclick="adProdutoModal()">Adicionar Produtos</button>
+            <button type="button" class="adProduto" onclick="abrirModalProduto()">Adicionar Produtos</button>
         </form>
     </div>
 </div>
@@ -88,23 +88,56 @@
     <div class="modal-content">
         <h2>Nova Ordem</h2>
         <form id="createForm">
-            <label for="createValue">Valor:</label>
-            <input type="number" id="createValue" step="0.01">
             <label for="createDate">Data:</label>
             <input type="date" id="createDate">
             <label for="createObservacao">Observação:</label>
             <input type="text" id="createObservacao">
-            <button type="button" class="criar" onclick="createOrdem()">Criar</button>
             <button type="button" class="cancel" onclick="closeCreateModal()">Cancelar</button>
-            <button type="button" class="adProduto" onclick="adProdutoModal()">Adicionar Produtos</button>
+            <button type="button" class="adProduto" onclick="abrirModalProduto()">Adicionar Produtos</button>
         </form>
     </div>
 </div>
+
 <form action="/uploadPdf" method="post" enctype="multipart/form-data" style="display: none">
     <label for="pdfFile">Escolha o arquivo PDF:</label>
     <input type="file" id="pdfFile" name="pdfFile" accept="application/pdf">
     <button type="submit">Enviar PDF</button>
 </form>
+<div id="produtoModal" class="modal">
+    <div class="modal-content">
+        <h4>Escolha o Produto</h4>
+        <div id="conteudoModal" class="conteudo-modal">
+            <div id="produtoListDiv">
+                <table id="produtoList" class="table">
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <label for="createValue">Valor Total:</label>
+        <input type="text" id="createValue" readonly step="0.01">
+        <button type="button" class="criar" onclick="createOrdem()">Criar Ordem</button>
+        <button type="button" class="cancel" onclick="closeCreateModal()">Cancelar Ordem</button>
+    </div>
+</div>
+<div id="produtosContainer" style="display: none;">
+    <button class="btn-fechar" onclick="fecharProdutos()">X</button>
+    <table id="produtosTabela">
+        <thead>
+        <tr>
+            <th>Nome do Produto</th>
+            <th>Quantidade</th>
+            <th>Valor Unitário</th>
+            <th>Valor Total</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <div id="alertaSemProdutos" class="alerta-produtos" style="display: none;">
+        Esta ordem não possui produtos.
+    </div>
+</div>
 <script src="script.js"></script>
 </body>
 </html>

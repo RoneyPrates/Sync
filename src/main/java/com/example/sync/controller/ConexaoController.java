@@ -1,15 +1,20 @@
 package com.example.sync.controller;
 
 import com.example.sync.model.NotaFiscal;
+import com.example.sync.model.Usuarios;
 import com.example.sync.repository.NotaFiscalRepository;
+import com.example.sync.repository.UsuariosRepository;
 import com.example.sync.service.LoginService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -27,6 +32,8 @@ public class ConexaoController {
     private LoginService loginService;
     @Autowired
     private NotaFiscalRepository notaFiscalRepository;
+    @Autowired
+    private UsuariosRepository usuariosRepository;
 
     @GetMapping("/login")
     public String showLoginPage() {
@@ -34,19 +41,16 @@ public class ConexaoController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestParam("email") String email,
-                        @RequestParam("password") String senha,
-                        Model model,
-                        RedirectAttributes redirectAttributes,
-                        HttpSession session) {
-        Long usuarioId = loginService.autenticar(email, senha);
-        if (usuarioId != null) {
-            session.setAttribute("usuarioId", usuarioId);
-            redirectAttributes.addFlashAttribute("usuarios", email);
-            return "redirect:/ordensdecompras.html";
+    @ResponseBody
+    public ResponseEntity<?> login(@RequestParam("email") String email,
+                                   @RequestParam("password") String senha) {
+        Usuarios usuario = loginService.autenticar(email, senha);
+
+        if (usuario != null) {
+            return ResponseEntity.ok(usuario);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuário ou senha inválidos");
         }
-        model.addAttribute("erro", "Usuário ou senha inválidos");
-        return "login";
     }
 
     @PostMapping("/uploadPdf")
@@ -100,5 +104,11 @@ public class ConexaoController {
     @GetMapping("/cadastroFiliais")
     public String showCadastroFiliais() {
         return "cadastroFiliais";
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/login";
     }
 }

@@ -29,7 +29,6 @@ public class Usuarios {
 
     private Boolean ativo;
 
-    // Getters e setters
     public Long getId() {
         return id;
     }

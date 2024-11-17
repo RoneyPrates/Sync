@@ -431,7 +431,7 @@
     });
 
     document.getElementById('botaoVoltar').addEventListener('click', () => {
-        window.location.href = 'http://localhost:8080/ordensdecompras.html';
+        window.location.href = '/ordensdecompras.html';
     });
 
     function resetarCampos() {
@@ -441,6 +441,58 @@
         estadoInput.value = '';
         filialEditando = null;
     }
+
+    async function buscarNomeFilial(idFilial) {
+            try {
+                const response = await fetch(`/api/filial/${idFilial}`);
+                if (!response.ok) {
+                    throw new Error('Erro ao buscar o nome da filial');
+                }
+                const filial = await response.json();
+                const nomeFilial = filial.nome;
+                document.getElementById('nomeFilialHeader').innerText = nomeFilial;
+            } catch (error) {
+                console.error('Erro:', error);
+                document.getElementById('nomeFilialHeader').innerText = 'Erro ao carregar nome da filial.';
+            }
+        }
+
+        async function buscarNomeUsuario(usuarioId) {
+            try {
+                const response = await fetch(`/api/usuarios/${usuarioId}`);
+                if (!response.ok) {
+                    throw new Error('Erro ao buscar o nome do Usuário');
+                }
+                const usuario = await response.json();
+                const nomeUsuario = usuario.nome;
+                const idFilial = usuario.filial?.id;
+
+                document.getElementById('nomeUsuarioHeader').innerText = nomeUsuario;
+
+                if (idFilial) {
+                    await buscarNomeFilial(idFilial);
+                } else {
+                    document.getElementById('nomeFilialHeader').innerText = 'Nenhuma filial associada.';
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                document.getElementById('nomeUsuarioHeader').innerText = 'Erro ao carregar nome do Usuário.';
+                document.getElementById('nomeFilialHeader').innerText = 'Erro ao carregar nome da filial.';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const usuarioId = sessionStorage.getItem('usuarioId');
+
+        if (usuarioId) {
+            console.log('Usuário ID recuperado do sessionStorage:', usuarioId);
+            buscarNomeUsuario(usuarioId);
+        } else {
+            console.error('Usuário não logado');
+            document.getElementById('nomeUsuarioHeader').innerText = 'Usuário não logado.';
+            document.getElementById('nomeFilialHeader').innerText = 'Nenhuma filial associada.';
+        }
+    });
 </script>
 </body>
 </html>

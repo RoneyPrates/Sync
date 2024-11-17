@@ -1,10 +1,17 @@
 package com.example.sync.controller;
 
+import com.example.sync.ProdutoOrdemDTO;
 import com.example.sync.model.Ordem;
+import com.example.sync.model.OrdemProdutos;
+import com.example.sync.model.Produto;
+import com.example.sync.repository.OrdemProdutoRepository;
+import com.example.sync.repository.OrdemRepository;
+import com.example.sync.repository.ProdutoRepository;
 import com.example.sync.service.OrdemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +23,12 @@ public class OrdemController {
 
     @Autowired
     private OrdemService ordemService;
+    @Autowired
+    private OrdemRepository ordemRepository;
+    @Autowired
+    private ProdutoRepository produtoRepository;
+    @Autowired
+    private OrdemProdutoRepository ordemProdutoRepository;
 
     @GetMapping
     public List<Ordem> getAllOrders() {
@@ -23,14 +36,18 @@ public class OrdemController {
     }
 
     @PostMapping
-    public ResponseEntity<Ordem> createOrder(@RequestBody Ordem ordem) {
-        try {
-            Ordem createdOrder = ordemService.saveOrdem(ordem);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+    public Ordem createOrdem(@RequestBody Ordem ordem) {
+        return ordemService.createOrdem(ordem);
+    }
+
+    @GetMapping("/ordensdecompras")
+    public ResponseEntity<List<Ordem>> getOrdens(@RequestParam Long usuarioId) {
+        List<Ordem> ordens = ordemRepository.findByUsuarioId(usuarioId);
+
+        if (ordens.isEmpty()) {
+            return ResponseEntity.noContent().build();
         }
+        return ResponseEntity.ok(ordens);
     }
 
     @PatchMapping("/{id}/aprovarcompra")
@@ -104,5 +121,36 @@ public class OrdemController {
             return ResponseEntity.ok(updatedOrder);
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ordem não encontrada");
+    }
+    @GetMapping("/{id}/produtos")
+    public ResponseEntity<Ordem> obterProdutosDaOrdem(@PathVariable Long id) {
+        Optional<Ordem> ordem = ordemService.getOrdemById(id);
+        if (ordem.isPresent()) {
+            return ResponseEntity.ok(ordem.get());
+        }
+        return ResponseEntity.notFound().build();
+    }
+    @PostMapping("/{id}/produtos")
+    public ResponseEntity<?> adicionarProdutosNaOrdem(@PathVariable Long id, @RequestBody List<ProdutoOrdemDTO> produtosDTO) {
+        Optional<Ordem> ordem = ordemService.getOrdemById(id);
+        if (ordem.isPresent()) {
+            for (ProdutoOrdemDTO produtoDTO : produtosDTO) {
+                Produto produto = produtoRepository.findById(produtoDTO.getProdutoId())
+                        .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+
+                OrdemProdutos ordemProduto = new OrdemProdutos();
+                ordemProduto.setOrdem(ordem.get());
+                ordemProduto.setProduto(produto);
+                ordemProduto.setQuantidade(produtoDTO.getQuantidade());
+                ordemProduto.setValorUnitario(produtoDTO.getValorUnitario());
+                ordemProduto.setValorTotal(produtoDTO.getValorTotal());
+
+                ordemProdutoRepository.save(ordemProduto);
+            }
+
+            return ResponseEntity.ok("Produtos adicionados com sucesso");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ordem não encontrada");
+        }
     }
 }

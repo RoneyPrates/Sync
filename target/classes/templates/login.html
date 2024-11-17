@@ -69,6 +69,7 @@
         button:hover {
             background-color: #0056b3;
         }
+
         .particle {
             position: absolute;
             width: 5px;
@@ -92,7 +93,7 @@
     <img src="/logo.png" alt="Logo da Empresa">
 </div>
 <div class="container">
-    <form action="/login" method="post">
+    <form id="loginForm">
         <div class="form-group">
             <label for="email">LOGIN</label>
             <input type="email" id="email" name="email" required>
@@ -103,11 +104,61 @@
         </div>
         <button type="submit">ENTRAR</button>
         <div>
-            <span th:text="${erro}"></span>
+            <span id="erro"></span>
         </div>
     </form>
 </div>
 <script>
+    async function loginUser(email, senha) {
+        try {
+            const response = await fetch('/login', {
+                method: 'POST',
+                body: new URLSearchParams({
+                    email: email,
+                    password: senha
+                })
+            });
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Resposta da API:', data);
+
+                const usuarioId = data.id;
+                const tipoUsuario = data.tipoUsuario ? data.tipoUsuario.nomeTipoUsuario : null;
+                const filialId = data.filial ? data.filial.id : null;
+                const filialNome = data.filial ? data.filial.nome : null;
+                const nomeUsuario = data.nome;
+
+                if (tipoUsuario === null) {
+                    alert("Erro: tipo de usuário não encontrado.");
+                    return;
+                }
+
+                sessionStorage.setItem('usuarioId', usuarioId);
+                sessionStorage.setItem('usuarioTipo', tipoUsuario);
+                sessionStorage.setItem('nomeUsuario', nomeUsuario);
+                sessionStorage.setItem('filialId', filialId);
+                sessionStorage.setItem('filialNome', filialNome);
+
+                window.location.href = "/ordensdecompras.html";
+            } else {
+                alert('Erro no login');
+                const erro = await response.text();
+                document.getElementById('erro').innerText = erro;
+            }
+        } catch (error) {
+            console.error('Erro ao realizar login:', error);
+        }
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const email = document.getElementById('email').value;
+        const senha = document.getElementById('password').value;
+
+        loginUser(email, senha);
+    });
+
     function createParticles() {
         for (let i = 0; i < 100; i++) {
             let particle = document.createElement('div');
