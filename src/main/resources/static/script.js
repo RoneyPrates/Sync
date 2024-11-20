@@ -2,7 +2,6 @@ let ordens = [];
 const deletedOrdens = [];
 let currentEditingOrder = null;
 let produtosSelecionados = [];
-let valorTotal = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
     const usuarioId = sessionStorage.getItem('usuarioId');
@@ -20,6 +19,25 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 const fetchOrders = async (usuarioId, usuarioTipo) => {
+
+    const ordemGrid = document.getElementById('ordensBanco');
+
+    const numSkeletons = 5;
+
+    let skeletonsHTML = '';
+    for (let i = 0; i < numSkeletons; i++) {
+        skeletonsHTML += `
+            <div class="skeleton-container">
+                <div class="skeleton skeleton-title"></div>
+                <div class="skeleton skeleton-line"></div>
+                <div class="skeleton skeleton-line"></div>
+                <div class="skeleton skeleton-line short"></div>
+            </div>
+        `;
+    }
+
+
+    ordemGrid.innerHTML = skeletonsHTML;
     try {
         const response = await fetch('/ordensdecompras');
         if (!response.ok) {
@@ -54,6 +72,7 @@ const fetchOrders = async (usuarioId, usuarioTipo) => {
             }
         }
 
+
         console.log('Ordens filtradas:', ordensFiltradas);
 
         ordens = ordensFiltradas;
@@ -75,12 +94,14 @@ function displayOrdem(ordens, section) {
     ordemGrid.innerHTML = '';
 
     ordens.forEach(ordem => {
+
         const ordemItem = document.createElement('div');
         ordemItem.className = 'ordem-item';
-        ordemItem.style.backgroundColor = 'white';
+        ordemItem.style.backgroundColor = '#e0f7fa';
         ordemItem.style.color = 'black';
         const statusColor = getStatusColor(ordem.status);
         ordemItem.style.border = `5px solid ${statusColor}`;
+        ordemItem.style.borderRadius = '10px';
         ordemItem.innerHTML = `
             <p><strong>Número da Ordem:</strong> ${ordem.id}</p>
             <p><strong>Data da Ordem:</strong> ${ordem.dataOrdem}</p>
@@ -119,27 +140,28 @@ function displayOrdem(ordens, section) {
                 <button class="btn-invoice" onclick="abrirNotaFiscal('${ordem.id}')"><img src="notafiscal.png" alt="Nota Fiscal"></button>` : '') : ''
         }                          
             </div>
+            
         `;
+
         ordemGrid.appendChild(ordemItem);
     });
+
 }
 
 function getStatusColor(status) {
     switch (status) {
         case 'Pendente':
-            return '#FFD700';
+            return '#FFC107';
         case 'Compra Aprovada':
-            return '#00FF00';
+            return '#4CAF50';
         case 'Compra Efetuada':
-            return 'green';
+            return '#388E3C';
         case 'Reprovada':
-            return 'red';
+            return '#D32F2F';
         case 'Deletada':
-            return 'lightgray';
+            return '#9E9E9E';
         case 'Finalizada':
-            return 'blue';
-        default:
-            return 'white';
+            return '#1976D2';
     }
 }
 
@@ -166,13 +188,14 @@ async function createOrdem() {
 
     const valorTotal = produtosSelecionados.reduce((total, produto) => total + produto.valor_total, 0);
     console.log("Valor total calculado:", valorTotal);
-    const valorOrdem = isNaN(valorTotal) || valorTotal <= 0 ? 0 : valorTotal;
+
+    const valorOrdem = valorTotal > 0 ? valorTotal : 0;
 
     const newOrdem = {
         dataOrdem: date,
         observacao: observacao,
         status: 'Pendente',
-        valorOrdem: valorTotal > 0 ? valorTotal : 0,
+        valorOrdem: valorOrdem,
         nomeUsuario: nomeUsuario,
         usuario: { id: sessionStorage.getItem('usuarioId') },
         filial: { id: filialId }
@@ -194,14 +217,14 @@ async function createOrdem() {
 
         const ordemCriada = await responseOrdem.json();
 
-        const produtosSelecionados = getProdutosSelecionados();
         if (produtosSelecionados.length > 0) {
+            const produtos = getProdutosSelecionados();
             const responseProdutos = await fetch(`/ordensdecompras/${ordemCriada.id}/produtos`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(produtosSelecionados)
+                body: JSON.stringify(produtos)  // Enviando os produtos corretamente
             });
 
             if (!responseProdutos.ok) {
@@ -211,6 +234,7 @@ async function createOrdem() {
         }
 
         alert('Ordem criada com sucesso!');
+        location.reload();
     } catch (error) {
         console.error('Erro:', error);
         alert('Erro ao criar a ordem: ' + error.message);
@@ -259,16 +283,16 @@ async function carregarProdutos(ordemId) {
 
                     const row = produtoList.insertRow();
                     row.innerHTML = `
-                        <td class="campos">${produto.nome}</td>
-                        <td>
-                            <div class="campos">
-                                <label for="quantidade_${produto.id}">Quantidade:</label>
-                                <input type="number" id="quantidade_${produto.id}" min="1" value="${quantidade}">
-                                <label for="preco_${produto.id}">Preço:</label>
-                                <input type="number" id="preco_${produto.id}" min="0" step="0.01" value="${preco}">
-                                <button type="button" id="adicionarProduto_${produto.id}" onclick="adicionarOuRemoverProduto(${produto.id}, '${produto.nome}', ${preco})">
-                                    ${produtoNaOrdem ? 'Remover' : 'Adicionar'}
-                                </button>
+    <td class="campos">${produto.nome}</td>
+    <td>
+        <div class="campos">
+            <label for="quantidade_${produto.id}">Quantidade:</label>
+            <input type="number" id="quantidade_${produto.id}" min="1" value="${quantidade}">
+            <label for="preco_${produto.id}">Preço:</label>
+            <input type="number" id="preco_${produto.id}" min="0" step="0.01" value="${preco}">
+            <button type="button" id="adicionarProduto_${produto.id}" onclick="adicionarOuRemoverProduto(${produto.id}, '${produto.nome}')">
+                ${produtoNaOrdem ? 'Remover' : 'Adicionar'}
+            </button>
                             </div>
                         </td>
                     `;
@@ -293,8 +317,10 @@ async function carregarProdutos(ordemId) {
     }
 }
 
-function adicionarOuRemoverProduto(id, nome, preco) {
-    const quantidade = parseInt(document.getElementById(`quantidade_${id}`).value);
+function adicionarOuRemoverProduto(id, nome) {
+    const quantidade = parseFloat(document.getElementById(`quantidade_${id}`).value);
+    const preco = parseFloat(document.getElementById(`preco_${id}`).value);
+
     console.log('Preço:', preco);
     console.log('Quantidade:', quantidade);
 
@@ -329,20 +355,102 @@ function adicionarOuRemoverProduto(id, nome, preco) {
     } else {
         botao.innerText = 'Adicionar';
     }
+
     document.getElementById(`quantidade_${id}`).value = quantidade;
     document.getElementById(`preco_${id}`).value = preco;
 }
 
 function atualizarValorTotal() {
-    valorTotal = produtosSelecionados.reduce((acc, produto) => acc + produto.valor_total, 0);
-
+    let valorTotal = produtosSelecionados.reduce((acc, produto) => acc + produto.valor_total, 0);
     document.getElementById('createValue').value = valorTotal.toFixed(2);
 }
 
 function inicializarModais() {
     document.getElementById('produtoModal').style.display = 'none';
+    document.getElementById('produtoModalEdicao').style.display = 'none';
 }
 window.onload = inicializarModais;
+
+async function carregarProdutosEdicao(ordemId) {
+    try {
+        const ordem = ordens.find(o => o.id === ordemId);
+        if (!ordem) {
+            console.error('Ordem não encontrada.');
+            return;
+        }
+
+        const response = await fetch('/ordensdecompras/${id}/produtos');
+        if (!response.ok) {
+            throw new Error('Erro ao carregar os produtos');
+        }
+
+        const produtos = await response.json();
+        console.log('Produtos recebidos:', produtos);
+
+        const produtosSelecionados = ordem.produtos || [];
+
+        const produtoList = document.getElementById('produtoList').getElementsByTagName('tbody')[0];
+        produtoList.innerHTML = '';
+
+        if (Array.isArray(produtos)) {
+            const produtosAtivos = produtos.filter(produto => produto.ativo);
+            console.log('Produtos Ativos:', produtosAtivos);
+
+            if (produtosAtivos.length > 0) {
+                produtosAtivos.forEach(produto => {
+                    const produtoNaOrdem = produtosSelecionados.find(p => p.produto_id === produto.id);
+                    const quantidade = produtoNaOrdem ? produtoNaOrdem.quantidade : 1;
+                    const preco = produtoNaOrdem ? produtoNaOrdem.valor_unitario : produto.preco || 0;
+
+                    const row = produtoList.insertRow();
+                    row.innerHTML = `
+                        <td class="campos">${produto.nome}</td>
+                        <td>
+                            <div class="campos">
+                                <label for="quantidade_${produto.id}">Quantidade:</label>
+                                <input type="number" id="quantidade_${produto.id}" min="1" value="${quantidade}">
+                                <label for="preco_${produto.id}">Preço:</label>
+                                <input type="number" id="preco_${produto.id}" min="0" step="0.01" value="${preco}">
+                                <button type="button" id="adicionarProduto_${produto.id}" onclick="adicionarOuRemoverProduto(${produto.id}, '${produto.nome}')">
+                                    ${produtoNaOrdem ? 'Remover' : 'Adicionar'}
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                });
+            } else {
+                console.log('Nenhum produto ativo encontrado.');
+            }
+        } else {
+            console.error('A estrutura dos dados não é um array:', produtos);
+        }
+
+        const produtoListDiv = document.getElementById('produtoListDiv');
+        if (produtoListDiv) {
+            produtoListDiv.style.display = 'block';
+        } else {
+            console.error('Elemento produtoListDiv não encontrado.');
+        }
+
+    } catch (error) {
+        console.error('Erro ao carregar os produtos:', error);
+        alert('Erro ao carregar produtos: ' + error.message);
+    }
+}
+
+function editarOrdem(id) {
+    currentEditingOrder = ordens.find(ordem => Number(ordem.id) === Number(id));
+
+    if (currentEditingOrder) {
+        document.getElementById('editDate').value = currentEditingOrder.dataOrdem;
+        document.getElementById('editObservacao').value = currentEditingOrder.observacao;
+        document.getElementById('editValue').value = currentEditingOrder.valorOrdem;
+        document.getElementById('editModal').style.display = 'flex';
+    } else {
+        console.log('Ordem não encontrada');
+        alert('Ordem não encontrada');
+    }
+}
 
 async function saveEdit() {
     const date = document.getElementById('editDate').value;
@@ -381,30 +489,16 @@ async function saveEdit() {
         }
 
         alert('Ordem editada com sucesso!');
-        closeModal();
-        displayOrdens(ordens);
-
+        location.reload();
     } catch (error) {
         console.error('Erro ao salvar a edição:', error);
         alert('Erro ao salvar a edição da ordem: ' + error.message);
     }
 }
-
-function editOrdem(id) {
-
-    currentEditingOrder = ordens.find(ordem => Number(ordem.id) === Number(id));
-
-    if (currentEditingOrder) {
-        document.getElementById('editDate').value = currentEditingOrder.dataOrdem;
-        document.getElementById('editObservacao').value = currentEditingOrder.observacao;
-        document.getElementById('editValue').value = currentEditingOrder.valorOrdem;
-        document.getElementById('editModal').style.display = 'flex';
-    } else {
-        console.log('Ordem não encontrada');
-        alert('Ordem não encontrada');
-    }
+function abrirModalProdutoEdicao() {
+    document.getElementById('produtoModal').style.display = 'flex';
+    carregarProdutosEdicao();
 }
-
 function closeModal() {
     document.getElementById('editModal').style.display = 'none';
 }
@@ -539,7 +633,6 @@ function abrirNotaFiscal(id) {
     window.open(`/notasfiscais/ordem/${id}/baixar`, '_blank');
 }
 function abrirProdutos(ordemId) {
-    console.log("Buscando produtos para a ordem ID:", ordemId);
     fetch(`/ordensdecompras/${ordemId}/produtos`)
         .then(response => {
             if (!response.ok) {
