@@ -93,7 +93,7 @@
             <label for="createObservacao">Observação:</label>
             <input type="text" id="createObservacao">
             <button type="button" class="cancel" onclick="closeCreateModal()">Cancelar</button>
-            <button type="button" class="adProduto" onclick="abrirModalProduto()">Adicionar Produtos</button>
+            <button type="button" class="adProduto" onclick="abrirModalProdutoEdicao()">Adicionar Produtos</button>
         </form>
     </div>
 </div>
@@ -118,6 +118,23 @@
         <input type="text" id="createValue" readonly step="0.01">
         <button type="button" class="criar" onclick="createOrdem()">Criar Ordem</button>
         <button type="button" class="cancel" onclick="closeCreateModal()">Cancelar Ordem</button>
+    </div>
+</div>
+<div id="produtoModalEdicao" class="modal">
+    <div class="modal-content">
+        <h4>Escolha o Produto</h4>
+        <div id="conteudoModalEdicao" class="conteudo-modal">
+            <div id="produtoListDivEdicao">
+                <table id="produtoListEdicao" class="table">
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <label for="createValueEdicao">Valor Total:</label>
+        <input type="text" id="createValueEdicao" readonly step="0.01">
+        <button type="button" class="criar" onclick="editOrdem()">Salvar</button>
+        <button type="button" class="cancel" onclick="closeCreateModalEdicao()">Cancelar</button>
     </div>
 </div>
 <div id="produtosContainer" style="display: none;">
